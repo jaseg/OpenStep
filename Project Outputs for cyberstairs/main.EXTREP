@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------
-Gerber File Extension Report For: main.GBR   7/8/2014  10:58:09 AM
+Gerber File Extension Report For: main.GBR   7/8/2014  1:04:47 PM
 ------------------------------------------------------------------------------------------
 
 
@@ -9,7 +9,9 @@ Layer Extension     Layer Description
 .GTL                Top Layer                               
 .GBL                Bottom Layer                            
 .GTO                Top Overlay                             
+.GTP                Top Paste                               
 .GTS                Top Solder                              
 .GBS                Bottom Solder                           
+.GBP                Bottom Paste                            
 .GBO                Bottom Overlay                          
 ------------------------------------------------------------------------------------------

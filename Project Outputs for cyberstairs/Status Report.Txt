@@ -4,15 +4,17 @@ From  : Variant [[No Variations]] of Project [cyberstairs.PrjPcb]
    Generated File[main.GTL]
    Generated File[main.GBL]
    Generated File[main.GTO]
+   Generated File[main.GTP]
    Generated File[main.GTS]
    Generated File[main.GBS]
+   Generated File[main.GBP]
    Generated File[main.GBO]
    Generated File[main.RUL]
    Generated File[main.EXTREP]
    Generated File[main.REP]
 
 
-Files Generated   : 9
+Files Generated   : 11
 Documents Printed : 0
 
-Finished Output Generation At 10:58:09 AM On 7/8/2014
+Finished Output Generation At 1:04:48 PM On 7/8/2014
