@@ -34,3 +34,31 @@ Icon
 # Files that might appear on external disk
 .Spotlight-V100
 .Trashes
+
+# Altium stuff
+History/
+*.DRR
+*.EXTREP
+*.GBL
+*.GBO
+*.GBS
+*.GBP
+*.GTL
+*.GTO
+*.GTS
+*.GTP
+*.LDP
+*.REP
+*.RUL
+main.TXT
+*.PcbDoc.htm
+Status Report.Txt
+*.APR_LIB
+*.GKO
+
+__Previews/
+
+# vim
+*.swo
+*.swp
+*~
