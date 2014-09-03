@@ -1,20 +1,12 @@
-Output: Gerber Files
-Type  : Gerber
-From  : Variant [[No Variations]] of Project [cyberstairs.PrjPcb]
-   Generated File[main.GTL]
-   Generated File[main.GBL]
-   Generated File[main.GTO]
-   Generated File[main.GTP]
-   Generated File[main.GTS]
-   Generated File[main.GBS]
-   Generated File[main.GBP]
-   Generated File[main.GBO]
-   Generated File[main.RUL]
-   Generated File[main.EXTREP]
-   Generated File[main.REP]
+Output: NC Drill Files
+Type  : NC Drill
+From  : Project [cyberstairs.PrjPcb]
+   Generated File[main.TXT]
+   Generated File[main.LDP]
+   Generated File[main.DRR]
 
 
-Files Generated   : 11
+Files Generated   : 3
 Documents Printed : 0
 
-Finished Output Generation At 10:05:59 PM On 7/8/2014
+Finished Output Generation At 11:08:28 PM On 9/3/2014

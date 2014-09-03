@@ -1,4 +1,4 @@
-DRC Rules Export File for PCB: C:\Users\Public\Documents\Altium\cyberstairs\main.PcbDoc
+DRC Rules Export File for PCB: C:\Users\jaseg\Documents\GitHub\OpenStep\main.PcbDoc
 RuleKind=Width|RuleName=HighCurrentNets|Scope=Board|Minimum=10.00
 RuleKind=Clearance|RuleName=VGND Polygon clearance|Scope=Board|Minimum=20.00
 RuleKind=ShortCircuit|RuleName=ShortCircuit|Scope=Board|Allowed=0

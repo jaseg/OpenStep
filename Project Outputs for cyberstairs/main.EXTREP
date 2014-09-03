@@ -1,5 +1,5 @@
 ------------------------------------------------------------------------------------------
-Gerber File Extension Report For: main.GBR   7/8/2014  10:05:58 PM
+Gerber File Extension Report For: main.GBR   9/3/2014  11:05:34 PM
 ------------------------------------------------------------------------------------------
 
 
@@ -14,4 +14,5 @@ Layer Extension     Layer Description
 .GBS                Bottom Solder                           
 .GBP                Bottom Paste                            
 .GBO                Bottom Overlay                          
+.GKO                Keep-Out Layer                          
 ------------------------------------------------------------------------------------------
