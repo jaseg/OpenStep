@@ -1,7 +1,7 @@
 Protel Design System Design Rule Check
 PCB File : C:\Users\jaseg\Documents\GitHub\OpenStep\main.PcbDoc
-Date     : 9/3/2014
-Time     : 11:00:40 PM
+Date     : 9/29/2014
+Time     : 1:00:57 PM
 
 Processing Rule : Net Antennae (Tolerance=1000mil) (InNetClass('Guard'))
 Rule Violations :0
@@ -49,9 +49,9 @@ Rule Violations :0
 Processing Rule : Net Antennae (Tolerance=0mil) (All)
 Rule Violations :0
 
-Processing Rule : Room main (Bounding Region = (2330mil, 2260mil, 3860mil, 3880mil) (InComponentClass('main'))
+Processing Rule : Room main (Bounding Region = (2295mil, 2260mil, 3860mil, 3885mil) (InComponentClass('main'))
 Rule Violations :0
 
 
 Violations Detected : 1
-Time Elapsed        : 00:00:01
+Time Elapsed        : 00:00:02
