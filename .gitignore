@@ -39,22 +39,10 @@ Icon
 History/
 *.DRR
 *.EXTREP
-*.GBL
-*.GBO
-*.GBS
-*.GBP
-*.GTL
-*.GTO
-*.GTS
-*.GTP
-*.LDP
-*.REP
-*.RUL
 main.TXT
 *.PcbDoc.htm
 Status Report.Txt
 *.APR_LIB
-*.GKO
 
 __Previews/
 

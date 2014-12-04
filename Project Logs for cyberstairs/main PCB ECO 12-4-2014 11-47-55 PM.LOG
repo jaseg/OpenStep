@@ -1,0 +1,4 @@
+Added Component: Designator=DS2(KING-0603LED_YELLOW_V)
+Added Pin To Net: NetName=NetDS2_1 Pin=DS2-1
+Added Pin To Net: NetName=PGND Pin=DS2-2
+Added Member To Class: ClassName=main Member=Component DS2 KP-1608SYCK

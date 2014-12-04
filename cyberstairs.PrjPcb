@@ -36,7 +36,7 @@ PrefsVaultGUID=
 PrefsRevisionGUID=
 
 [Document1]
-DocumentPath=main.PcbLib
+DocumentPath=cyberstairs.OutJob
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -52,7 +52,7 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 
 [Document2]
-DocumentPath=cyberstairs.SCHLIB
+DocumentPath=main.PcbLib
 AnnotationEnabled=1
 AnnotateStartValue=1
 AnnotationIndexControlEnabled=0
@@ -68,6 +68,22 @@ DItemRevisionGUID=
 GenerateClassCluster=0
 
 [Document3]
+DocumentPath=cyberstairs.SCHLIB
+AnnotationEnabled=1
+AnnotateStartValue=1
+AnnotationIndexControlEnabled=0
+AnnotateSuffix=
+AnnotateScope=All
+AnnotateOrder=-1
+DoLibraryUpdate=1
+DoDatabaseUpdate=1
+ClassGenCCAutoEnabled=1
+ClassGenCCAutoRoomEnabled=1
+ClassGenNCAutoScope=None
+DItemRevisionGUID=
+GenerateClassCluster=0
+
+[Document4]
 DocumentPath=main.SchDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -83,7 +99,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
 
-[Document4]
+[Document5]
 DocumentPath=main.PcbDoc
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -99,7 +115,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
 
-[Document5]
+[Document6]
 DocumentPath=gerber_export.cam
 AnnotationEnabled=1
 AnnotateStartValue=1
@@ -115,7 +131,7 @@ ClassGenNCAutoScope=None
 DItemRevisionGUID=
 GenerateClassCluster=0
 
-[Document6]
+[Document7]
 DocumentPath=nc-drill.cam
 AnnotationEnabled=1
 AnnotateStartValue=1

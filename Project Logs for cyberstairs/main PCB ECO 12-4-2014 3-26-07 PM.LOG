@@ -1,0 +1,6 @@
+Removed Pin From Net: NetName=PGND Pin=DS2-2
+Added Pin To Net: NetName=PVCC Pin=C1-1
+Added Pin To Net: NetName=PGND Pin=C1-2
+Added Pin To Net: NetName=RS485_D+ Pin=D1-1
+Added Pin To Net: NetName=RS485_D- Pin=D1-2
+Added Pin To Net: NetName=GND Pin=DS2-2
