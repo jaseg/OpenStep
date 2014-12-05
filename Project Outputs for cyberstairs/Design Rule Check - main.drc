@@ -1,60 +1,60 @@
 Protel Design System Design Rule Check
 PCB File : C:\Users\jaseg\Documents\GitHub\OpenStep\main.PcbDoc
-Date     : 12/3/2014
-Time     : 11:37:18 AM
+Date     : 12/5/2014
+Time     : 1:53:01 PM
 
-Processing Rule : Net Antennae (Tolerance=25.4mm) (InNetClass('Guard'))
-Rule Violations :0
-
-Processing Rule : Width Constraint (Min=0.254mm) (Max=2.54mm) (Preferred=0.813mm) (InNetClass('Power'))
-Rule Violations :0
-
-Processing Rule : Clearance Constraint (Gap=0.508mm) (InNet('VGND') AND InPoly),(All)
-Rule Violations :0
-
-Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
-Rule Violations :0
-
-Processing Rule : Un-Routed Net Constraint ( (All) )
-Rule Violations :0
-
-Processing Rule : Clearance Constraint (Gap=0.152mm) (All),(All)
-Rule Violations :0
-
-Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=0.508mm) (Conductor Width=0.254mm) (Air Gap=0.254mm) (Entries=4) (All)
-Rule Violations :0
-
-Processing Rule : Width Constraint (Min=0.152mm) (Max=1.27mm) (Preferred=0.254mm) (All)
-Rule Violations :0
-
-Processing Rule : Height Constraint (Min=0mm) (Max=25.4mm) (Prefered=12.7mm) (All)
-Rule Violations :0
-
-Processing Rule : Hole Size Constraint (Min=0.3mm) (Max=6.35mm) (All)
-Rule Violations :0
-
-Processing Rule : Hole To Hole Clearance (Gap=0.254mm) (All),(All)
-Rule Violations :0
-
-Processing Rule : Minimum Solder Mask Sliver (Gap=0.1mm) (Disabled)(All),(All)
-Rule Violations :0
-
-Processing Rule : Silk To Solder Mask (Clearance=0.178mm) (Disabled)(IsPad),(All)
-Rule Violations :0
-
-Processing Rule : Silk to Silk (Clearance=0.152mm) (Disabled)(All),(All)
-Rule Violations :0
-
-Processing Rule : Net Antennae (Tolerance=0mm) (not IsVia)
-Rule Violations :0
-
-Processing Rule : Room main (Bounding Region = (58.42mm, 56.642mm, 98.298mm, 96.52mm) (InComponentClass('main'))
+Processing Rule : Minimum Annular Ring (Minimum=0.152mm) (All)
 Rule Violations :0
 
 Processing Rule : Width Constraint (Min=0.152mm) (Max=25.4mm) (Preferred=0.254mm) (OnLayer('Top Overlay'))
 Rule Violations :0
 
-Processing Rule : Minimum Annular Ring (Minimum=0.152mm) (All)
+Processing Rule : Room main (Bounding Region = (58.42mm, 52.197mm, 98.298mm, 96.52mm) (InComponentClass('main'))
+Rule Violations :0
+
+Processing Rule : Net Antennae (Tolerance=0mm) (not IsVia)
+Rule Violations :0
+
+Processing Rule : Silk to Silk (Clearance=0.152mm) (Disabled)(All),(All)
+Rule Violations :0
+
+Processing Rule : Silk To Solder Mask (Clearance=0.178mm) (Disabled)(IsPad),(All)
+Rule Violations :0
+
+Processing Rule : Minimum Solder Mask Sliver (Gap=0.1mm) (Disabled)(All),(All)
+Rule Violations :0
+
+Processing Rule : Hole To Hole Clearance (Gap=0.254mm) (All),(All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=0.3mm) (Max=6.35mm) (All)
+Rule Violations :0
+
+Processing Rule : Height Constraint (Min=0mm) (Max=25.4mm) (Prefered=12.7mm) (All)
+Rule Violations :0
+
+Processing Rule : Width Constraint (Min=0.152mm) (Max=1.27mm) (Preferred=0.254mm) (All)
+Rule Violations :0
+
+Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=0.508mm) (Conductor Width=0.254mm) (Air Gap=0.254mm) (Entries=4) (All)
+Rule Violations :0
+
+Processing Rule : Clearance Constraint (Gap=0.152mm) (All),(All)
+Rule Violations :0
+
+Processing Rule : Un-Routed Net Constraint ( (All) )
+Rule Violations :0
+
+Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
+Rule Violations :0
+
+Processing Rule : Clearance Constraint (Gap=0.508mm) (InNet('VGND') AND InPoly),(All)
+Rule Violations :0
+
+Processing Rule : Width Constraint (Min=0.254mm) (Max=2.54mm) (Preferred=0.813mm) (InNetClass('Power'))
+Rule Violations :0
+
+Processing Rule : Net Antennae (Tolerance=25.4mm) (InNetClass('Guard'))
 Rule Violations :0
 
 
