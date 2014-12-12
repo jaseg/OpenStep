@@ -6,6 +6,6 @@ all: $(GERBERS)
 
 
 $(GERBERS): $(wildcard Outputs/Gerber/*) Outputs/NCDrill/main.TXT
-	zip $@ $^
+	zip -j $@ $^
 
 
