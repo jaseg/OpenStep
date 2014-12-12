@@ -37,11 +37,8 @@ Icon
 
 # Altium stuff
 History/
-*.DRR
 *.EXTREP
-main.TXT
 *.PcbDoc.htm
-Status Report.Txt
 *.APR_LIB
 
 __Previews/
