@@ -1,0 +1,62 @@
+Protel Design System Design Rule Check
+PCB File : C:\Users\jaseg\Documents\GitHub\OpenStep\main.PcbDoc
+Date     : 12/12/2014
+Time     : 12:33:46 PM
+
+Processing Rule : Minimum Annular Ring (Minimum=6mil) (All)
+Rule Violations :0
+
+Processing Rule : Width Constraint (Min=6mil) (Max=1000mil) (Preferred=10mil) (OnLayer('Top Overlay'))
+Rule Violations :0
+
+Processing Rule : Room main (Bounding Region = (2300mil, 2055mil, 3870mil, 3800mil) (InComponentClass('main'))
+Rule Violations :0
+
+Processing Rule : Net Antennae (Tolerance=0mil) (not IsVia)
+Rule Violations :0
+
+Processing Rule : Silk to Silk (Clearance=6mil) (Disabled)(All),(All)
+Rule Violations :0
+
+Processing Rule : Silk To Solder Mask (Clearance=7mil) (Disabled)(IsPad),(All)
+Rule Violations :0
+
+Processing Rule : Minimum Solder Mask Sliver (Gap=3.937mil) (Disabled)(All),(All)
+Rule Violations :0
+
+Processing Rule : Hole To Hole Clearance (Gap=10mil) (All),(All)
+Rule Violations :0
+
+Processing Rule : Hole Size Constraint (Min=11.811mil) (Max=250mil) (All)
+Rule Violations :0
+
+Processing Rule : Height Constraint (Min=0mil) (Max=1000mil) (Prefered=500mil) (All)
+Rule Violations :0
+
+Processing Rule : Width Constraint (Min=6mil) (Max=50mil) (Preferred=10mil) (All)
+Rule Violations :0
+
+Processing Rule : Power Plane Connect Rule(Relief Connect )(Expansion=20mil) (Conductor Width=10mil) (Air Gap=10mil) (Entries=4) (All)
+Rule Violations :0
+
+Processing Rule : Clearance Constraint (Gap=10mil) (All),(All)
+Rule Violations :0
+
+Processing Rule : Un-Routed Net Constraint ( (All) )
+Rule Violations :0
+
+Processing Rule : Short-Circuit Constraint (Allowed=No) (All),(All)
+Rule Violations :0
+
+Processing Rule : Clearance Constraint (Gap=20mil) (InNet('VGND') AND InPoly),(All)
+Rule Violations :0
+
+Processing Rule : Width Constraint (Min=10mil) (Max=100mil) (Preferred=32mil) (InNetClass('Power'))
+Rule Violations :0
+
+Processing Rule : Net Antennae (Tolerance=1000mil) (InNetClass('Guard'))
+Rule Violations :0
+
+
+Violations Detected : 0
+Time Elapsed        : 00:00:01

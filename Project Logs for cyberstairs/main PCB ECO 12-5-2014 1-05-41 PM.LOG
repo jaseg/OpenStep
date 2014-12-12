@@ -1,4 +1,0 @@
-Removed Pin From Net: NetName=PIEZO_1 Pin=U3-2
-Removed Pin From Net: NetName=PIEZO_3 Pin=U3-14
-Added Pin To Net: NetName=PIEZO_3 Pin=U3-2
-Added Pin To Net: NetName=PIEZO_1 Pin=U3-14
