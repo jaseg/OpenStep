@@ -225,7 +225,7 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
 .rela.plt
  *(.rela.plt)
 
-.text           0x000000000000fc00      0x164
+.text           0x000000000000fc00      0x180
                 0x000000000000fc00                . = ALIGN (0x2)
  *(.init .init.*)
  *(.init0)
@@ -250,11 +250,11 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
  *(.init7)
  *(.init8)
  *(.init9)
- .init9         0x000000000000fc3e       0xaa build/main.o
+ .init9         0x000000000000fc3e       0xc2 build/main.o
                 0x000000000000fc3e                main
  *(.fini9)
- .fini9         0x000000000000fce8        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__stop_progExec__.o)
-                0x000000000000fce8                __stop_progExec__
+ .fini9         0x000000000000fd00        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__stop_progExec__.o)
+                0x000000000000fd00                __stop_progExec__
  *(.fini8)
  *(.fini7)
  *(.fini6)
@@ -264,60 +264,60 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
  *(.fini2)
  *(.fini1)
  *(.fini0)
- .fini0         0x000000000000fce8        0x6 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
-                0x000000000000fce8                _endless_loop__
+ .fini0         0x000000000000fd00        0x6 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
+                0x000000000000fd00                _endless_loop__
  *(.fini .fini.*)
-                0x000000000000fcee                . = ALIGN (0x2)
-                0x000000000000fcee                __ctors_start = .
+                0x000000000000fd06                . = ALIGN (0x2)
+                0x000000000000fd06                __ctors_start = .
  *(.ctors)
-                0x000000000000fcee                __ctors_end = .
-                0x000000000000fcee                __dtors_start = .
+                0x000000000000fd06                __ctors_end = .
+                0x000000000000fd06                __dtors_start = .
  *(.dtors)
-                0x000000000000fcee                __dtors_end = .
-                0x000000000000fcee                . = ALIGN (0x2)
+                0x000000000000fd06                __dtors_end = .
+                0x000000000000fd06                . = ALIGN (0x2)
  *(.text .text.* .gnu.linkonce.t.*)
- .text          0x000000000000fcee        0x4 /usr/lib/gcc/msp430/4.6.3/crt0ivtbl16.o
-                0x000000000000fcee                __isr_14
-                0x000000000000fcee                __isr_4
-                0x000000000000fcee                __isr_11
-                0x000000000000fcee                __isr_5
-                0x000000000000fcee                __isr_2
-                0x000000000000fcee                __isr_10
-                0x000000000000fcee                __isr_7
-                0x000000000000fcee                __isr_0
-                0x000000000000fcee                __isr_8
-                0x000000000000fcee                __isr_3
-                0x000000000000fcee                __isr_12
-                0x000000000000fcee                __isr_13
-                0x000000000000fcee                __isr_9
-                0x000000000000fcee                __isr_6
-                0x000000000000fcee                __isr_1
- .text.crt0     0x000000000000fcf2        0x0 /usr/lib/gcc/msp430/4.6.3/crt0ivtbl16.o
- .text          0x000000000000fcf2       0x70 build/main.o
-                0x000000000000fcf2                uart_getc
-                0x000000000000fd02                uart_putc
-                0x000000000000fd10                nibble_to_hex
-                0x000000000000fd22                uart_putadc
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_reset_vector__.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__watchdog_support.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__init_stack.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__low_level_init.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_copy_data.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_clear_bss.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__stop_progExec__.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
- .text          0x000000000000fd62        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
- .text.crt0     0x000000000000fd62        0x2 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
-                0x000000000000fd62                _unexpected_
-                0x000000000000fd64                . = ALIGN (0x2)
+ .text          0x000000000000fd06        0x4 /usr/lib/gcc/msp430/4.6.3/crt0ivtbl16.o
+                0x000000000000fd06                __isr_14
+                0x000000000000fd06                __isr_4
+                0x000000000000fd06                __isr_11
+                0x000000000000fd06                __isr_5
+                0x000000000000fd06                __isr_2
+                0x000000000000fd06                __isr_10
+                0x000000000000fd06                __isr_7
+                0x000000000000fd06                __isr_0
+                0x000000000000fd06                __isr_8
+                0x000000000000fd06                __isr_3
+                0x000000000000fd06                __isr_12
+                0x000000000000fd06                __isr_13
+                0x000000000000fd06                __isr_9
+                0x000000000000fd06                __isr_6
+                0x000000000000fd06                __isr_1
+ .text.crt0     0x000000000000fd0a        0x0 /usr/lib/gcc/msp430/4.6.3/crt0ivtbl16.o
+ .text          0x000000000000fd0a       0x74 build/main.o
+                0x000000000000fd0a                uart_getc
+                0x000000000000fd1a                uart_putc
+                0x000000000000fd28                nibble_to_hex
+                0x000000000000fd3a                uart_putadc
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_reset_vector__.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__watchdog_support.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__init_stack.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__low_level_init.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_copy_data.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_clear_bss.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__stop_progExec__.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
+ .text          0x000000000000fd7e        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
+ .text.crt0     0x000000000000fd7e        0x2 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
+                0x000000000000fd7e                _unexpected_
+                0x000000000000fd80                . = ALIGN (0x2)
 
-.rodata         0x000000000000fd64        0x0
-                0x000000000000fd64                . = ALIGN (0x2)
+.rodata         0x000000000000fd80        0x0
+                0x000000000000fd80                . = ALIGN (0x2)
  *(.rodata .rodata.* .gnu.linkonce.r.*)
-                0x000000000000fd64                . = ALIGN (0x2)
-                0x000000000000fd64                _etext = .
+                0x000000000000fd80                . = ALIGN (0x2)
+                0x000000000000fd80                _etext = .
 
-.data           0x0000000000000200        0x0 load address 0x000000000000fd64
+.data           0x0000000000000200        0x0 load address 0x000000000000fd80
                 0x0000000000000200                . = ALIGN (0x2)
                 0x0000000000000200                PROVIDE (__data_start, .)
  *(.data .data.* .gnu.linkonce.d.*)
@@ -334,10 +334,10 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
  .data          0x0000000000000200        0x0 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
                 0x0000000000000200                . = ALIGN (0x2)
                 0x0000000000000200                _edata = .
-                0x000000000000fd64                PROVIDE (__data_load_start, LOADADDR (.data))
+                0x000000000000fd80                PROVIDE (__data_load_start, LOADADDR (.data))
                 0x0000000000000000                PROVIDE (__data_size, SIZEOF (.data))
 
-.bss            0x0000000000000200        0x0 load address 0x000000000000fd64
+.bss            0x0000000000000200        0x0 load address 0x000000000000fd80
                 0x0000000000000200                PROVIDE (__bss_start, .)
  *(.bss .bss.*)
  .bss           0x0000000000000200        0x0 /usr/lib/gcc/msp430/4.6.3/crt0ivtbl16.o
@@ -356,7 +356,7 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
                 0x0000000000000200                PROVIDE (__bss_end, .)
                 0x0000000000000000                PROVIDE (__bss_size, SIZEOF (.bss))
 
-.noinit         0x0000000000000200        0x2 load address 0x000000000000fd64
+.noinit         0x0000000000000200        0x2 load address 0x000000000000fd80
                 0x0000000000000200                PROVIDE (__noinit_start, .)
  *(.noinit .noinit.*)
  .noinit.crt0   0x0000000000000200        0x2 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__watchdog_support.o)
@@ -479,15 +479,15 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
  .debug_abbrev  0x000000000000019a       0x14 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
  .debug_abbrev  0x00000000000001ae       0x14 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
 
-.debug_line     0x0000000000000000      0x41f
+.debug_line     0x0000000000000000      0x429
  *(.debug_line)
- .debug_line    0x0000000000000000      0x104 build/main.o
- .debug_line    0x0000000000000104       0x84 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__watchdog_support.o)
- .debug_line    0x0000000000000188       0x82 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__init_stack.o)
- .debug_line    0x000000000000020a       0x88 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_copy_data.o)
- .debug_line    0x0000000000000292       0x88 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_clear_bss.o)
- .debug_line    0x000000000000031a       0x83 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
- .debug_line    0x000000000000039d       0x82 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
+ .debug_line    0x0000000000000000      0x10e build/main.o
+ .debug_line    0x000000000000010e       0x84 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__watchdog_support.o)
+ .debug_line    0x0000000000000192       0x82 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(__init_stack.o)
+ .debug_line    0x0000000000000214       0x88 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_copy_data.o)
+ .debug_line    0x000000000000029c       0x88 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_clear_bss.o)
+ .debug_line    0x0000000000000324       0x83 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_endless_loop__.o)
+ .debug_line    0x00000000000003a7       0x82 /usr/lib/gcc/msp430/4.6.3/libcrt0.a(_unexpected_.o)
 
 .debug_frame    0x0000000000000000       0x58
  *(.debug_frame)
@@ -512,6 +512,6 @@ LOAD /usr/lib/gcc/msp430/4.6.3/libcrt0.a
  *(.debug_ranges)
  .debug_ranges  0x0000000000000000        0xc build/main.o
                 0x0000000000000300                PROVIDE (__stack, (ORIGIN (ram) + 0x100))
-                0x000000000000fd64                PROVIDE (__data_start_rom, _etext)
-                0x000000000000fd64                PROVIDE (__data_end_rom, (_etext + SIZEOF (.data)))
+                0x000000000000fd80                PROVIDE (__data_start_rom, _etext)
+                0x000000000000fd80                PROVIDE (__data_end_rom, (_etext + SIZEOF (.data)))
 OUTPUT(build/openstep-firmware.elf elf32-msp430)
