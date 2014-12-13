@@ -1,7 +1,7 @@
 Protel Design System Design Rule Check
 PCB File : C:\Users\jaseg\Documents\GitHub\OpenStep\main.PcbDoc
-Date     : 12/12/2014
-Time     : 12:33:46 PM
+Date     : 12/13/2014
+Time     : 2:27:40 PM
 
 Processing Rule : Minimum Annular Ring (Minimum=6mil) (All)
 Rule Violations :0
@@ -9,7 +9,7 @@ Rule Violations :0
 Processing Rule : Width Constraint (Min=6mil) (Max=1000mil) (Preferred=10mil) (OnLayer('Top Overlay'))
 Rule Violations :0
 
-Processing Rule : Room main (Bounding Region = (2300mil, 2055mil, 3870mil, 3800mil) (InComponentClass('main'))
+Processing Rule : Room main (Bounding Region = (2300mil, 2055mil, 3870mil, 3890mil) (InComponentClass('main'))
 Rule Violations :0
 
 Processing Rule : Net Antennae (Tolerance=0mil) (not IsVia)

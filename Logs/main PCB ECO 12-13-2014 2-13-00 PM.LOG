@@ -1,0 +1,6 @@
+Added Component: Designator=R17(RESC0805(2012)_N)
+Added Pin To Net: NetName=DVCC Pin=R17-1
+Added Pin To Net: NetName=RST Pin=R17-2
+Added Member To Class: ClassName=main Member=Component C1 Cap Pol1
+Added Member To Class: ClassName=main Member=Component D1 SMAJ5.0CA-E3/5A
+Added Member To Class: ClassName=main Member=Component R17 10K 1% 0805(2012)
