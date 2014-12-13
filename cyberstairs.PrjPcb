@@ -168,175 +168,83 @@ DocumentPath=Outputs\BOM\Bill of Materials-cyberstairs.xls
 DItemRevisionGUID=
 
 [GeneratedDocument2]
-DocumentPath=Project Outputs for cyberstairs\BOM\Bill of Materials-cyberstairs.xls
-DItemRevisionGUID=
-
-[GeneratedDocument3]
 DocumentPath=Outputs\Design Rule Check - main.html
 DItemRevisionGUID=
 
-[GeneratedDocument4]
-DocumentPath=Project Outputs for cyberstairs\Design Rule Check - main.html
+[GeneratedDocument3]
+DocumentPath=main.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument5]
+[GeneratedDocument4]
 DocumentPath=Outputs\NC Drill\main.DRR
 DItemRevisionGUID=
 
-[GeneratedDocument6]
-DocumentPath=Project Outputs for cyberstairs\main.DRR
-DItemRevisionGUID=
-
-[GeneratedDocument7]
+[GeneratedDocument5]
 DocumentPath=Outputs\Gerber\main.EXTREP
 DItemRevisionGUID=
 
-[GeneratedDocument8]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.EXTREP
-DItemRevisionGUID=
-
-[GeneratedDocument9]
-DocumentPath=Project Outputs for cyberstairs\main.EXTREP
-DItemRevisionGUID=
-
-[GeneratedDocument10]
+[GeneratedDocument6]
 DocumentPath=Outputs\Gerber\main.GBL
 DItemRevisionGUID=
 
-[GeneratedDocument11]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GBL
-DItemRevisionGUID=
-
-[GeneratedDocument12]
-DocumentPath=Project Outputs for cyberstairs\main.GBL
-DItemRevisionGUID=
-
-[GeneratedDocument13]
+[GeneratedDocument7]
 DocumentPath=Outputs\Gerber\main.GBO
 DItemRevisionGUID=
 
-[GeneratedDocument14]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GBO
-DItemRevisionGUID=
-
-[GeneratedDocument15]
-DocumentPath=Project Outputs for cyberstairs\main.GBO
-DItemRevisionGUID=
-
-[GeneratedDocument16]
+[GeneratedDocument8]
 DocumentPath=Outputs\Gerber\main.GBP
 DItemRevisionGUID=
 
-[GeneratedDocument17]
-DocumentPath=Project Outputs for cyberstairs\main.GBP
-DItemRevisionGUID=
-
-[GeneratedDocument18]
+[GeneratedDocument9]
 DocumentPath=Outputs\Gerber\main.GBS
 DItemRevisionGUID=
 
-[GeneratedDocument19]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GBS
-DItemRevisionGUID=
-
-[GeneratedDocument20]
-DocumentPath=Project Outputs for cyberstairs\main.GBS
-DItemRevisionGUID=
-
-[GeneratedDocument21]
+[GeneratedDocument10]
 DocumentPath=Outputs\Gerber\main.GKO
 DItemRevisionGUID=
 
-[GeneratedDocument22]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GKO
-DItemRevisionGUID=
-
-[GeneratedDocument23]
+[GeneratedDocument11]
 DocumentPath=Outputs\Gerber\main.GTL
 DItemRevisionGUID=
 
-[GeneratedDocument24]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GTL
-DItemRevisionGUID=
-
-[GeneratedDocument25]
-DocumentPath=Project Outputs for cyberstairs\main.GTL
-DItemRevisionGUID=
-
-[GeneratedDocument26]
+[GeneratedDocument12]
 DocumentPath=Outputs\Gerber\main.GTO
 DItemRevisionGUID=
 
-[GeneratedDocument27]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GTO
-DItemRevisionGUID=
-
-[GeneratedDocument28]
-DocumentPath=Project Outputs for cyberstairs\main.GTO
-DItemRevisionGUID=
-
-[GeneratedDocument29]
+[GeneratedDocument13]
 DocumentPath=Outputs\Gerber\main.GTP
 DItemRevisionGUID=
 
-[GeneratedDocument30]
-DocumentPath=Project Outputs for cyberstairs\main.GTP
-DItemRevisionGUID=
-
-[GeneratedDocument31]
+[GeneratedDocument14]
 DocumentPath=Outputs\Gerber\main.GTS
 DItemRevisionGUID=
 
-[GeneratedDocument32]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.GTS
-DItemRevisionGUID=
-
-[GeneratedDocument33]
-DocumentPath=Project Outputs for cyberstairs\main.GTS
-DItemRevisionGUID=
-
-[GeneratedDocument34]
+[GeneratedDocument15]
 DocumentPath=Outputs\DRC\main.html
 DItemRevisionGUID=
 
-[GeneratedDocument35]
+[GeneratedDocument16]
+DocumentPath=main.LDP
+DItemRevisionGUID=
+
+[GeneratedDocument17]
 DocumentPath=Outputs\NC Drill\main.LDP
 DItemRevisionGUID=
 
-[GeneratedDocument36]
-DocumentPath=Project Outputs for cyberstairs\main.LDP
-DItemRevisionGUID=
-
-[GeneratedDocument37]
+[GeneratedDocument18]
 DocumentPath=Outputs\Gerber\main.REP
 DItemRevisionGUID=
 
-[GeneratedDocument38]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.REP
-DItemRevisionGUID=
-
-[GeneratedDocument39]
-DocumentPath=Project Outputs for cyberstairs\main.REP
-DItemRevisionGUID=
-
-[GeneratedDocument40]
+[GeneratedDocument19]
 DocumentPath=Outputs\Gerber\main.RUL
 DItemRevisionGUID=
 
-[GeneratedDocument41]
-DocumentPath=Project Outputs for cyberstairs\Gerber\main.RUL
+[GeneratedDocument20]
+DocumentPath=main.TXT
 DItemRevisionGUID=
 
-[GeneratedDocument42]
-DocumentPath=Project Outputs for cyberstairs\main.RUL
-DItemRevisionGUID=
-
-[GeneratedDocument43]
+[GeneratedDocument21]
 DocumentPath=Outputs\NC Drill\main.TXT
-DItemRevisionGUID=
-
-[GeneratedDocument44]
-DocumentPath=Project Outputs for cyberstairs\main.TXT
 DItemRevisionGUID=
 
 [Configuration1]

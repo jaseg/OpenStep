@@ -1,0 +1,12 @@
+Output: NC Drill Files
+Type  : NC Drill
+From  : PCB Document [main.PcbDoc]
+   Generated File[main.TXT]
+   Generated File[main.LDP]
+   Generated File[main.DRR]
+
+
+Files Generated   : 3
+Documents Printed : 0
+
+Finished Output Generation At 12:32:57 AM On 12/14/2014
