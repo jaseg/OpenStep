@@ -11,8 +11,8 @@ off = 100
 def plotfoo(dpoints):
     global ydata, line
     ydata = np.concatenate((ydata[len(dpoints):], dpoints))
-	for n,l in ls:
-		l.set_ydata(ydata[:,n])
+    for n,l in enumerate(ls):
+        l.set_ydata(ydata[:,n])
     plt.draw()
     plt.pause(0.0000000001)
     
@@ -47,17 +47,18 @@ ydata = np.zeros((w,nch))
 ls = []
 
 for _ in range(nch):
-	l = plt.plot(np.arange(len(ydata)))
-	l.set_alpha(0.7)
-	l.set_xdata(np.arange(0,w))
-	ls.append(l)
+    l, = plt.plot(np.arange(len(ydata)))
+    l.set_alpha(0.7)
+    l.set_xdata(np.arange(0,w))
+    ls.append(l)
 
+ser = None
 for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1']:
-	try:
-		ser = serial.Serial('/dev/ttyUSB1', 115200)
-		break
-	except:
-		pass
+    try:
+        ser = serial.Serial(dev, 115200)
+        break
+    except:
+        pass
 
-for chunk in chunked(sergen(ser), 10):
+for chunk in chunked(cavg(sergen(ser), 10), 10):
     plotfoo(chunk)
