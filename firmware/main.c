@@ -29,7 +29,7 @@
 #define ADDRESS_DISCOVERY 0xCC
 #define ADDRESS_INVALID   0xFF
 
-const uint8_t CONFIG_MAC[] = {0, 0, 0, 0, 0, 0, 0, 0};
+const uint8_t CONFIG_MAC[] = {207, 105, 193, 102, 191, 213, 19, 7};
 
 volatile int cur_adc_ch;
 volatile int adc_res[3];
@@ -129,11 +129,14 @@ void ucarx_handler(){
                 state.receiving = 1;
                 end += sizeof(pkt.discovery_payload)-1;
             } else {
-                for (uint8_t i=0; i<pkt.cmd; i++) {
-                    if (CONFIG_MAC[i] != pkt.discovery_payload.mac_mask[i]) {
+                uint8_t bcnt = pkt.cmd>>1;
+                uint8_t nibble = pkt.cmd&1;
+                for (uint8_t i=0; i<bcnt; i++)
+                    if (CONFIG_MAC[i] != pkt.discovery_payload.mac_mask[i])
                         return;
-                    }
-                }
+                if(nibble)
+                    if ((CONFIG_MAC[bcnt]&0xF0) != (pkt.discovery_payload.mac_mask[bcnt]&0xF0))
+                        return;
                 uart_putc(0xFF); /* "I'm here!" */
                 current_address = pkt.discovery_payload.new_id;
             }

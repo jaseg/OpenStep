@@ -8,13 +8,16 @@ class TimeoutException(Exception):
 
 escape = lambda s: s.replace(b'\\', b'\\\\')
 
-MAC_LEN = 8
+MAC_LEN = 16
 
 def macrange(mac, mask):
 	mac = list(mac) # clone array
-	for i in range(255):
+	for i in range(16):
 		mac[mask-1] = i
 		yield mac
+
+def pack_mac(mac):
+	return [ mac[i]<<4 | mac[i+1] for i in range(0, len(mac), 2)]
 
 class SerialMux(object):
 
@@ -45,13 +48,13 @@ class SerialMux(object):
 					self.discover(mask+1, a, found)
 				else:
 					print('-> found device.')
-					found.append((a, next_address))
+					found.append((pack_mac(a), next_address)) # clone array
 		return found
 
 	def _send_probe(self, mac, mask, next_address):
 		with self.ser as s:
 			print('probing', mac, mask, next_address)
-			s.write(b'\\#\xCC' + bytes([mask, next_address] + mac))
+			s.write(b'\\#\xCC' + bytes([mask, next_address] + pack_mac(mac)))
 			timeout_tmp = s.timeout
 			s.timeout = 0.05
 			try:
