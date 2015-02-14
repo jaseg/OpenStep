@@ -115,22 +115,27 @@ typedef struct {
     } payload;
 } pkt_t;
 
+/* protocol handling declarations */
 void ucarx_handler(void) __attribute__((interrupt(USCIAB0RX_VECTOR)));
+static unsigned int handle_discovery_packet(char *p, pkt_t *pkt, rx_state_t *state);
+static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state);
+static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state);
+
 void ucarx_handler() {
 	static rx_state_t state;
-	static uint8_t* p;
-	static uint8_t* end;
 	static pkt_t pkt;
+	static char* p;
+	static char* end;
 
-    uint8_t c = UCA0RXBUF;
+    char c = UCA0RXBUF;
 
 	if (state.escaped) {
         state.escaped = 0;
 		if (c == '#') {
 			state.receiving = 1;
 			state.ignoring = 0;
-			p = (uint8_t*)&pkt;
-			end = (uint8_t*)&pkt.payload.discovery;
+			p = (char*)&pkt;
+			end = (char*)&pkt.payload.discovery;
 			return;
 		}
 	} else if (c == '\\') {
@@ -146,26 +151,26 @@ void ucarx_handler() {
     p++;
 
 	if (p == end) {
-        unsigned int rem;
+        unsigned int n = 0;
         if (pkt.node_id == DISCOVERY_ADDRESS) {
-            rem = handle_discovery_packet(&pkt, &state):
+            n = handle_discovery_packet(p, &pkt, &state);
         } else if (pkt.node_id == current_address) {
-            rem = handle_command_packet(&pkt, &state):
+            n = handle_command_packet(&pkt, &state);
         } else if (pkt.node_id == BROADCAST_ADDRESS) {
-            rem = handle_broadcast_packet(&pkt, &state):
+            n = handle_broadcast_packet(&pkt, &state);
         }
-        state.receiving = !!rem;
+        state.receiving = !!n;
+        end += n;
     }
 }
 
-inline static unsigned int handle_discovery_packet(pkt_t *pkt, rx_state_t *state) {
-    if (p == (uint8_t*)&pkt->payload.discovery) {
-        state->receiving = 1;
+inline static unsigned int handle_discovery_packet(char *p, pkt_t *pkt, rx_state_t *state) {
+    if (p == (char*)&pkt->payload.discovery) {
         return sizeof(pkt->payload.discovery)-1;
     } else {
-        uint8_t bcnt = pkt->cmd>>1;
-        uint8_t nibble = pkt->cmd&1;
-        for (uint8_t i=0; i<bcnt; i++)
+        unsigned int bcnt = pkt->cmd>>1;
+        unsigned int nibble = pkt->cmd&1;
+        for (unsigned int i=0; i<bcnt; i++)
             if (CONFIG_MAC[i] != pkt->payload.discovery.mac_mask[i])
                 return 0;
         if(nibble)
@@ -177,7 +182,7 @@ inline static unsigned int handle_discovery_packet(pkt_t *pkt, rx_state_t *state
     return 0;
 }
 
-inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state){
+inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) {
     switch (pkt->cmd) {
         case CMD_GET_DATA:
             escaped_send(&adc_res);
@@ -189,8 +194,8 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state){
     return 0;
 }
 
-inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state){
-    switch (pkt.cmd) {
+inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state) {
+    switch (pkt->cmd) {
         case CMD_SET_LEDS:
             /* FIXME */
             break;
@@ -200,7 +205,6 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
                     escaped_send(&adc_res);
                 } else {
                     state->ignoring = 1;
-                    state->receiving = 1;
                     /* bit of arcane information on this: nodes are numbered continuously beginning from one by the
                      * master. payload position in the cluster-response is determined by the node's address. */
                     return sizeof(pkt->payload.adc)*current_address;
@@ -226,8 +230,9 @@ void adc10_isr(void) {
     ADC10CTL0 &= ~ENC;
 
     unsigned int acc = 0;
-    unsigned int *end = adc_raw+ADC_OVERSAMPLING;
-    for (unsigned int *p=adc_raw; p<end; p++) {
+    /* pointer targets volatile, pointers itself not */
+    volatile unsigned int *end = adc_raw+ADC_OVERSAMPLING;
+    for (volatile unsigned int *p=adc_raw; p<end; p++) {
         acc += *p;
     }
     acc >>= ADC_OVERSAMPLING_BITS;
@@ -265,7 +270,7 @@ int main(void){
 
     /* ADC DTC setup */ 
     ADC10DTC0   = 0; /* one block mode, stop after block is written */
-    ADC10SA     = adc_raw;
+    ADC10SA     = (unsigned int)adc_raw;
     ADC10DTC1   = 8; /* Number of conversions */
 
     /* UART setup */
