@@ -12,7 +12,7 @@ TARGET = openstep-firmware
 # MCU: part number to build for
 MCU = msp430g2553
 # SOURCES: list of input source sources
-SOURCES = main.c
+SOURCES = main.c protocol.c
 # INCLUDES: list of includes, by default, use Includes directory
 INCLUDES =
 # OUTDIR: directory to use for output
