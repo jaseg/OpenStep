@@ -1,7 +1,10 @@
 #!/usr/bin/env python3
 
 import serial
+import serial_mux
 from matplotlib import pyplot as plt
+import time
+import struct
 import numpy as np
 
 w = 400
@@ -23,12 +26,15 @@ def cavg(gen, n):
             l.append(next(gen))
         yield [sum(l)/n for l in zip(*l)]
         
-def sergen(ser):
-    ser.flushInput()
+def sample(s):
+    s.ser.write(b'\\#\xFF\xFF')
+    time.sleep(0.005)
+    s.ser.write(b'\\#\xFF\xFE')
+    return struct.unpack('HHH', s.ser.read(6))
+
+def sergen(s):
     while True:
-        _,*cs = ser.readline().decode('utf8').strip().split()
-        if len(cs) == nch: # sanity check
-            yield [int(c, 16)+n*off for n,c in enumerate(cs)]
+        yield sample(s)
             
 def chunked(gen, n):
     while True:
@@ -36,7 +42,7 @@ def chunked(gen, n):
         for _ in range(n):
             l.append(next(gen))
         yield l
-        
+
 plt.ion()
 
 plt.xlim([0,w-1])
@@ -52,13 +58,15 @@ for _ in range(nch):
     l.set_xdata(np.arange(0,w))
     ls.append(l)
 
-ser = None
+s = None
 for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1']:
     try:
-        ser = serial.Serial(dev, 115200)
+        s = serial_mux.SerialMux(dev)
         break
     except:
         pass
 
-for chunk in chunked(cavg(sergen(ser), 10), 10):
+s.discover()
+
+for chunk in chunked(cavg(sergen(s), 3), 5):
     plotfoo(chunk)

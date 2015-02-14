@@ -2,59 +2,70 @@
 #include <msp430g2153.h>
 #include <stdint.h>
 
+/* FIXME find out optimal settings for adc clock prescaler and oversampling ratio below */
+#define ADC10CTL1_FLAGS_COMMON (ADC10DIV_3 | CONSEQ_2)
+/* CAUTION! The current code only supports up to 6 bits of oversampling due to the 16-bit nature of the MSP430
+ * architecture */
+#define ADC_OVERSAMPLING_BITS 3
+#define ADC_OVERSAMPLING      (1<<ADC_OVERSAMPLING_BITS)
 
-#define PIEZO_1_CH        0
-#define PIEZO_2_CH        4
-#define PIEZO_3_CH        6
-#define ADC10CTL1_FLAGS_CH1 ((PIEZO_1_CH<<12) | ADC10DIV_3)
-#define ADC10CTL1_FLAGS_CH2 ((PIEZO_2_CH<<12) | ADC10DIV_3)
-#define ADC10CTL1_FLAGS_CH3 ((PIEZO_3_CH<<12) | ADC10DIV_3)
+#define PIEZO_1_CH            0
+#define PIEZO_2_CH            4
+#define PIEZO_3_CH            6
+#define ADC10CTL1_FLAGS_CH1 ((PIEZO_1_CH<<12) | ADC10CTL1_FLAGS_COMMON)
+#define ADC10CTL1_FLAGS_CH2 ((PIEZO_2_CH<<12) | ADC10CTL1_FLAGS_COMMON)
+#define ADC10CTL1_FLAGS_CH3 ((PIEZO_3_CH<<12) | ADC10CTL1_FLAGS_COMMON)
 
-#define RGB_R_PIN         0
-#define RGB_G_PIN         1
-#define RGB_B_PIN         4
+#define RGB_R_PIN             0
+#define RGB_G_PIN             1
+#define RGB_B_PIN             4
 
-#define ST_YLW_PIN        2
-#define ST_GRN_PIN        3
+#define ST_YLW_PIN            2
+#define ST_GRN_PIN            3
 
-#define RS485_EN_PIN      5
+#define RS485_EN_PIN          5
+
+#define CMD_GET_DATA          1
+#define CMD_SET_LEDS          2
+
+#define BCMD_SET_LEDS         253
+#define BCMD_GET_DATA         254
+#define BCMD_ACQUIRE          255 /* usually followed by a break of a few milliseconds */
+
+#define DISCOVERY_ADDRESS     0xCC
+#define INVALID_ADDRESS       0xFE
+#define BROADCAST_ADDRESS     0xFF
+
+const uint8_t CONFIG_MAC[] = {0x5f, 0xb3, 0x5d, 0xdd, 0x5b, 0xb6, 0x5e, 0xb7};
+
+typedef struct {
+    uint16_t ch[3];
+} adc_res_t;
+
+volatile adc_res_t adc_res;
+volatile unsigned int adc_raw[ADC_OVERSAMPLING];
 
 
-/* protocol definitions */
-#define CONFIG_NAME  "徳川家康"
-
-#define ECHO_NAME         1
-#define GET_DATA          2
-
-#define ADDRESS_DISCOVERY 0xCC
-#define ADDRESS_INVALID   0xFF
-
-const uint8_t CONFIG_MAC[] = {207, 105, 193, 102, 191, 213, 19, 7};
-
-volatile int cur_adc_ch;
-volatile int adc_res[3];
-
-
-void rs485_enable(){
+void rs485_enable() {
     P2OUT      |= (1<<RS485_EN_PIN);
 }
 
-void rs485_disable(){
+void rs485_disable() {
     rs485_enable();
 //    P2OUT      &= ~(1<<RS485_EN_PIN);
 }
 
-int uart_getc(){
-    while(!(IFG2&UCA0RXIFG));
+int uart_getc() {
+    while (!(IFG2&UCA0RXIFG)) ;
     return UCA0RXBUF;
 }
 
-void uart_putc(char c){
-    while(!(IFG2&UCA0TXIFG));
+void uart_putc(char c) {
+    while (!(IFG2&UCA0TXIFG)) ;
     UCA0TXBUF = c;
 }
 
-char nibble_to_hex(uint8_t nibble){
+char nibble_to_hex(uint8_t nibble) {
     return (nibble < 0xA) ? ('0'+nibble) : ('A'+nibble-0xA);
 }
 
@@ -65,42 +76,51 @@ void uart_puthword(uint16_t val){
     uart_putc(nibble_to_hex(val&0xF));
 }
 
-void escaped_putc(uint8_t c){
+void escaped_putc(uint8_t c) {
     if(c == '\\')
         uart_putc(c);
     uart_putc(c);
 }
 
-void escaped_puts(char *c){
+void escaped_puts(char *c) {
     do{
         escaped_putc(*c);
     }while(*c++);
 }
 
-void escaped_putadc(uint16_t val){
-    escaped_putc(val>>8);
-    escaped_putc(val&0xFF);
+void escaped_sendbuf(char *buf, unsigned int len) {
+    for (char *end = buf+len; buf<end; buf++)
+        escaped_putc(*buf);
 }
 
+#define escaped_send(obj) escaped_sendbuf((char*)(obj), sizeof(*(obj)))
 
-uint16_t current_address = ADDRESS_INVALID;
+uint16_t current_address = INVALID_ADDRESS;
 
-void ucarx_handler(void) __attribute__((interrupt(USCIAB0RX_VECTOR)));
-void ucarx_handler(){
-	static struct {
-		uint8_t receiving:1;
-		uint8_t escaped:1;
-	} state;
-	static uint8_t* p;
-	static uint8_t* end;
-	static struct {
-		uint8_t node_id;
-		uint8_t cmd;
+typedef struct {
+    uint8_t receiving:1;
+    uint8_t ignoring:1;
+    uint8_t escaped:1;
+} rx_state_t;
+
+typedef struct {
+    uint8_t node_id;
+    uint8_t cmd;
+    union {
         struct {
             uint8_t new_id;
             uint8_t mac_mask[8];
-        } discovery_payload;
-	} pkt;
+        } discovery;
+        adc_res_t adc;
+    } payload;
+} pkt_t;
+
+void ucarx_handler(void) __attribute__((interrupt(USCIAB0RX_VECTOR)));
+void ucarx_handler() {
+	static rx_state_t state;
+	static uint8_t* p;
+	static uint8_t* end;
+	static pkt_t pkt;
 
     uint8_t c = UCA0RXBUF;
 
@@ -108,8 +128,9 @@ void ucarx_handler(){
         state.escaped = 0;
 		if (c == '#') {
 			state.receiving = 1;
+			state.ignoring = 0;
 			p = (uint8_t*)&pkt;
-			end = (uint8_t*)&pkt.discovery_payload;
+			end = (uint8_t*)&pkt.payload.discovery;
 			return;
 		}
 	} else if (c == '\\') {
@@ -120,64 +141,114 @@ void ucarx_handler(){
 
 	if (!state.receiving)
 		return;
-	*p++ = c;
+    if (!state.ignoring)
+        *p = c;
+    p++;
 
-	if(p == end) {
-        state.receiving = 0;
-        if (pkt.node_id == ADDRESS_DISCOVERY) {
-            if (p == (uint8_t*)&pkt.discovery_payload) {
-                state.receiving = 1;
-                end += sizeof(pkt.discovery_payload)-1;
-            } else {
-                uint8_t bcnt = pkt.cmd>>1;
-                uint8_t nibble = pkt.cmd&1;
-                for (uint8_t i=0; i<bcnt; i++)
-                    if (CONFIG_MAC[i] != pkt.discovery_payload.mac_mask[i])
-                        return;
-                if(nibble)
-                    if ((CONFIG_MAC[bcnt]&0xF0) != (pkt.discovery_payload.mac_mask[bcnt]&0xF0))
-                        return;
-                uart_putc(0xFF); /* "I'm here!" */
-                current_address = pkt.discovery_payload.new_id;
-            }
+	if (p == end) {
+        unsigned int rem;
+        if (pkt.node_id == DISCOVERY_ADDRESS) {
+            rem = handle_discovery_packet(&pkt, &state):
         } else if (pkt.node_id == current_address) {
-            switch (pkt.cmd) {
-                case ECHO_NAME:
-                    escaped_puts(CONFIG_NAME);
-                    break;
-                case GET_DATA:
-                    escaped_putadc(adc_res[0]);
-                    escaped_putadc(adc_res[1]);
-                    escaped_putadc(adc_res[2]);
-                    break;
-            }
+            rem = handle_command_packet(&pkt, &state):
+        } else if (pkt.node_id == BROADCAST_ADDRESS) {
+            rem = handle_broadcast_packet(&pkt, &state):
         }
+        state.receiving = !!rem;
     }
+}
+
+inline static unsigned int handle_discovery_packet(pkt_t *pkt, rx_state_t *state) {
+    if (p == (uint8_t*)&pkt->payload.discovery) {
+        state->receiving = 1;
+        return sizeof(pkt->payload.discovery)-1;
+    } else {
+        uint8_t bcnt = pkt->cmd>>1;
+        uint8_t nibble = pkt->cmd&1;
+        for (uint8_t i=0; i<bcnt; i++)
+            if (CONFIG_MAC[i] != pkt->payload.discovery.mac_mask[i])
+                return 0;
+        if(nibble)
+            if ((CONFIG_MAC[bcnt]&0xF0) != (pkt->payload.discovery.mac_mask[bcnt]&0xF0))
+                return 0;
+        uart_putc(0xFF); /* "I'm here!" */
+        current_address = pkt->payload.discovery.new_id;
+    }
+    return 0;
+}
+
+inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state){
+    switch (pkt->cmd) {
+        case CMD_GET_DATA:
+            escaped_send(&adc_res);
+            break;
+        case CMD_SET_LEDS:
+            /* FIXME */
+            break;
+    }
+    return 0;
+}
+
+inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state){
+    switch (pkt.cmd) {
+        case CMD_SET_LEDS:
+            /* FIXME */
+            break;
+        case BCMD_GET_DATA:
+            if (!state->ignoring) {
+                if (current_address == 0 ) {
+                    escaped_send(&adc_res);
+                } else {
+                    state->ignoring = 1;
+                    state->receiving = 1;
+                    /* bit of arcane information on this: nodes are numbered continuously beginning from one by the
+                     * master. payload position in the cluster-response is determined by the node's address. */
+                    return sizeof(pkt->payload.adc)*current_address;
+                }
+            } else {
+                state->ignoring = 0;
+                escaped_send(&adc_res);
+            }
+            break;
+        case BCMD_ACQUIRE:
+            /* Kick ADC... */
+            ADC10CTL0 |= ENC | ADC10SC;
+            /* ...and go to sleep. */
+            _BIS_SR_IRQ(LPM0_bits); /* HACK this only works because this function is always inlined into the ISR */
+            break;
+    }
+    return 0;
 }
 
 
 void adc10_isr(void) __attribute__((interrupt(ADC10_VECTOR)));
 void adc10_isr(void) {
     ADC10CTL0 &= ~ENC;
-    switch(cur_adc_ch){
+
+    unsigned int acc = 0;
+    unsigned int *end = adc_raw+ADC_OVERSAMPLING;
+    for (unsigned int *p=adc_raw; p<end; p++) {
+        acc += *p;
+    }
+    acc >>= ADC_OVERSAMPLING_BITS;
+
+    switch (ADC10CTL1) {
         case ADC10CTL1_FLAGS_CH1:
-            cur_adc_ch = ADC10CTL1_FLAGS_CH2;
-            adc_res[0] = ADC10MEM;
-            _BIS_SR_IRQ(LPM0_bits);
+            ADC10CTL1 = ADC10CTL1_FLAGS_CH2;
+            adc_res.ch[0] = acc;
             break;
         case ADC10CTL1_FLAGS_CH2:
-            cur_adc_ch = ADC10CTL1_FLAGS_CH3;
-            adc_res[1] = ADC10MEM;
-            _BIS_SR_IRQ(LPM0_bits);
+            ADC10CTL1 = ADC10CTL1_FLAGS_CH3;
+            adc_res.ch[1] = acc;
             break;
         case ADC10CTL1_FLAGS_CH3:
-            cur_adc_ch = ADC10CTL1_FLAGS_CH1;
-            adc_res[2] = ADC10MEM;
-            _BIC_SR_IRQ(LPM0_bits);
-            break;
+            ADC10CTL1 = ADC10CTL1_FLAGS_CH1;
+            adc_res.ch[2] = acc;
+            return; /* End conversion sequence */
     }
-    ADC10CTL1  = cur_adc_ch;
-    ADC10CTL0 |= ENC | ADC10SC;
+
+    ADC10CTL0 |= ENC | ADC10SC; /* Kick ADC... */
+    _BIS_SR_IRQ(LPM0_bits);
 }
 
 int main(void){
@@ -188,11 +259,14 @@ int main(void){
     BCSCTL1     = CALBC1_16MHZ;
 
     /* ADC setup */
-    ADC10CTL1   = ADC10CTL1_FLAGS_CH2;
-    cur_adc_ch  = ADC10CTL1_FLAGS_CH2;
-//    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | ADC10ON | ADC10IE;
-    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | ADC10ON;
+    ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
+    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | ADC10ON | ADC10IE;
     ADC10AE0   |= (1<<PIEZO_1_CH) | (1<<PIEZO_2_CH) | (1<<PIEZO_3_CH);
+
+    /* ADC DTC setup */ 
+    ADC10DTC0   = 0; /* one block mode, stop after block is written */
+    ADC10SA     = adc_raw;
+    ADC10DTC1   = 8; /* Number of conversions */
 
     /* UART setup */
     P1SEL      |= 0x06;
@@ -226,12 +300,6 @@ int main(void){
 
     /* Set global interrupt enable flag */
     _BIS_SR(GIE);
-
-    /* Kick ADC... */
-    ADC10CTL0 |=  ENC | ADC10SC;
-
-    /* ...and go to sleep. */
-//    _BIS_SR(LPM0_bits);
 
     while(42){
 //        TA0CCR0 = TA0CCR1 = TA0CCR2 = (ch1<<6);
