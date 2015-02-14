@@ -28,7 +28,7 @@ def cavg(gen, n):
         
 def sample(s):
     s.ser.write(b'\\#\xFF\xFF')
-    time.sleep(0.005)
+    time.sleep(0.040) # maximum sample time should be around 30ms
     s.ser.write(b'\\#\xFF\xFE')
     return struct.unpack('HHH', s.ser.read(6))
 
@@ -68,5 +68,5 @@ for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1']:
 
 s.discover()
 
-for chunk in chunked(cavg(sergen(s), 3), 5):
+for chunk in chunked(sergen(s), 20):
     plotfoo(chunk)

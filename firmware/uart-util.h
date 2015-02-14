@@ -3,7 +3,7 @@
 
 #include <msp430g2153.h>
 #include <stdint.h>
-#include "config.h"
+#include "main.h"
 
 inline void rs485_enable() {
     P2OUT      |= (1<<RS485_EN_PIN);
