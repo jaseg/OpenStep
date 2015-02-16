@@ -12,7 +12,7 @@ TARGET = openstep-firmware
 # MCU: part number to build for
 MCU = msp430g2553
 # SOURCES: list of input source sources
-SOURCES = main.c protocol.c
+SOURCES = main.c protocol.c bootloader.c
 # INCLUDES: list of includes, by default, use Includes directory
 INCLUDES =
 # OUTDIR: directory to use for output
@@ -20,7 +20,7 @@ OUTDIR = build
 # define flags
 CFLAGS = -mmcu=$(MCU) -g -Os -Wall -Wunused $(INCLUDES) -std=c99
 ASFLAGS = -mmcu=$(MCU) -x assembler-with-cpp -Wa,-gstabs
-LDFLAGS = -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map
+LDFLAGS = -mmcu=$(MCU) -Wl,-Map=$(OUTDIR)/$(TARGET).map -Wl,--verbose
 #######################################
 # end of user configuration
 #######################################

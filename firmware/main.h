@@ -1,6 +1,8 @@
 #ifndef _MAIN_H
 #define _MAIN_H
 
+#include <stdint.h>
+
 /* FIXME find out optimal settings for adc clock prescaler and oversampling ratio below */
 #define ADC10CTL1_FLAGS_COMMON (ADC10DIV_3 | CONSEQ_2)
 /* CAUTION! The current code only supports up to 6 bits of oversampling due to the 16-bit nature of the MSP430
@@ -24,11 +26,15 @@
 
 #define RS485_EN_PIN          5
 
+#define MAC_LEN               8
+
+
 typedef struct {
     uint16_t ch[3];
 } adc_res_t;
 
 extern volatile adc_res_t adc_res;
-extern const uint8_t CONFIG_MAC[];
+
+int app_main(void);
 
 #endif//_MAIN_H

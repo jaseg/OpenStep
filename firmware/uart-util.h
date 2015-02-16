@@ -19,6 +19,11 @@ inline int uart_getc() {
     return UCA0RXBUF;
 }
 
+inline int uart_getc_timeout(unsigned long int timeout) {
+    while (!(IFG2&UCA0RXIFG) && timeout--) ;
+    return timeout ? UCA0RXBUF : -1;
+}
+
 inline void uart_putc(char c) {
     while (!(IFG2&UCA0TXIFG)) ;
     UCA0TXBUF = c;
