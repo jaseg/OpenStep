@@ -5,8 +5,8 @@
 #include "main.h"
 
 
-const uint8_t CONFIG_MAC[] = {0x5f, 0xb3, 0x5d, 0xdd, 0x5b, 0xb6, 0x5e, 0xb7};
-//const uint8_t CONFIG_MAC[] = {0x7e, 0x54, 0x75, 0x30, 0x4f, 0xe1, 0x95, 0x77};
+//const uint8_t CONFIG_MAC[] = {0x5f, 0xb3, 0x5d, 0xdd, 0x5b, 0xb6, 0x5e, 0xb7};
+const uint8_t CONFIG_MAC[] = {0x7e, 0x54, 0x75, 0x30, 0x4f, 0xe1, 0x95, 0x77};
 
 volatile adc_res_t adc_res = {{0,0,0}};
 volatile unsigned int adc_raw[ADC_OVERSAMPLING];
@@ -53,9 +53,9 @@ int main(void){
     BCSCTL1     = CALBC1_16MHZ;
 
     /* ADC setup */
-//    ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
-//    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | MSC | ADC10ON | ADC10IE; /* FIXME find optimal ADC10SHT setting */
-//    ADC10AE0   |= (1<<PIEZO_1_CH) | (1<<PIEZO_2_CH) | (1<<PIEZO_3_CH);
+    ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
+    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | MSC | ADC10ON | ADC10IE; /* FIXME find optimal ADC10SHT setting */
+    ADC10AE0   |= (1<<PIEZO_1_CH) | (1<<PIEZO_2_CH) | (1<<PIEZO_3_CH);
 
     /* UART setup */
     P1SEL      |= 0x06;
