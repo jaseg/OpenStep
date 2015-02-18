@@ -4,15 +4,17 @@
 #include "uart-util.h"
 #include "main.h"
 
+
 const uint8_t CONFIG_MAC[] = {0x5f, 0xb3, 0x5d, 0xdd, 0x5b, 0xb6, 0x5e, 0xb7};
 
-volatile adc_res_t adc_res;
+volatile adc_res_t adc_res = {{0,0,0}};
 volatile unsigned int adc_raw[ADC_OVERSAMPLING];
 
 
 void adc10_isr(void) __attribute__((interrupt(ADC10_VECTOR)));
 void adc10_isr(void) {
     ADC10CTL0 &= ~ENC;
+    while(ADC10CTL1 & BUSY); /* wait until ADC is ready to be reconfigured */
 
     unsigned int acc = 0;
     /* pointer targets volatile, pointers itself not */
@@ -37,7 +39,7 @@ void adc10_isr(void) {
             return; /* End conversion sequence */
     }
 
-    ADC10CTL0 |= ENC | ADC10SC; /* Kick ADC... */
+    kick_adc();
     _BIS_SR_IRQ(LPM0_bits);
 }
 
@@ -51,21 +53,16 @@ int main(void){
 
     /* ADC setup */
     ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
-    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | ADC10ON | ADC10IE; /* FIXME find optimal ADC10SHT setting */
+    ADC10CTL0  |= SREF_0 | ADC10SHT_3 | MSC | ADC10ON | ADC10IE; /* FIXME find optimal ADC10SHT setting */
     ADC10AE0   |= (1<<PIEZO_1_CH) | (1<<PIEZO_2_CH) | (1<<PIEZO_3_CH);
-
-    /* ADC DTC setup */ 
-    ADC10DTC0   = 0; /* one block mode, stop after block is written */
-    ADC10SA     = (unsigned int)adc_raw;
-    ADC10DTC1   = 8; /* Number of conversions */
 
     /* UART setup */
     P1SEL      |= 0x06;
     P1SEL2     |= 0x06;
 
     /* RS485 enable */
-    P2DIR      |= (1<<RS485_EN_PIN);
-    rs485_enable();
+    P1DIR      |= (1<<RS485_EN_PIN);
+    rs485_disable();
 
     /* Set for 115.2kBd @ 16MHz */
     UCA0CTL1   |= UCSSEL1;
@@ -73,7 +70,7 @@ int main(void){
     UCA0BR1     = 0;
     UCA0MCTL    = UCBRS2;
     UCA0CTL1   &= ~UCSWRST;
-    
+
     IE2 |= UCA0RXIE;
 
     /* PWM setup */
@@ -87,14 +84,16 @@ int main(void){
 */
 
     /* Status LED setup */
-    P2DIR      |= (1<<ST_GRN_PIN) | (1<<ST_YLW_PIN);
+//    P2DIR      |= (1<<ST_GRN_PIN) | (1<<ST_YLW_PIN);
+    
+//    P2OUT      &= ~(1<<ST_YLW_PIN);
+//    P2OUT      |= (1<<ST_GRN_PIN);
 
     /* Set global interrupt enable flag */
     _BIS_SR(GIE);
 
-    while(42){
+    while (42) {
 //        TA0CCR0 = TA0CCR1 = TA0CCR2 = (ch1<<6);
-        P2OUT   ^= (1<<ST_YLW_PIN);
 //        _BIS_SR(LPM0_bits);
     }
     return 0;

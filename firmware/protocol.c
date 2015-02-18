@@ -17,7 +17,7 @@ uint16_t current_address = INVALID_ADDRESS;
 
 typedef struct {
     uint8_t receiving:1;
-    uint8_t ignoring:1;
+    uint8_t just_counting:1;
     uint8_t escaped:1;
 } rx_state_t;
 
@@ -47,11 +47,31 @@ void ucarx_handler() {
 
     char c = UCA0RXBUF;
 
+    rs485_enable();
+    uart_putc(0x55);
+    uart_putc(0xCC);
+    uart_putc(0x55);
+    uart_putc(0xCC);
+
+    uart_putc(0x23);
+    uart_putc(0xCC);
+    uart_putc(0x55);
+    uart_putc(0xCC);
+    uart_putc(0x55);
+    uart_putc(0xFF);
+    uart_putc(0x42);
+
+    uart_putc(0x55);
+    uart_putc(0xFF);
+    uart_putc(0x81);
+    rs485_disable();
+    return;
+
 	if (state.escaped) {
         state.escaped = 0;
 		if (c == '#') {
 			state.receiving = 1;
-			state.ignoring = 0;
+			state.just_counting = 0;
 			p = (char*)&pkt;
 			end = (char*)&pkt.payload.discovery;
 			return;
@@ -64,7 +84,7 @@ void ucarx_handler() {
 
 	if (!state.receiving)
 		return;
-    if (!state.ignoring)
+    if (!state.just_counting)
         *p = c;
     p++;
 
@@ -118,23 +138,22 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
             /* FIXME */
             break;
         case BCMD_GET_DATA:
-            if (!state->ignoring) {
+            if (!state->just_counting) {
                 if (current_address == 0 ) {
                     escaped_send(&adc_res);
                 } else {
-                    state->ignoring = 1;
+                    state->just_counting = 1;
                     /* bit of arcane information on this: nodes are numbered continuously beginning from one by the
                      * master. payload position in the cluster-response is determined by the node's address. */
                     return sizeof(pkt->payload.adc)*current_address;
                 }
             } else {
-                state->ignoring = 0;
+                state->just_counting = 0;
                 escaped_send(&adc_res);
             }
             break;
         case BCMD_ACQUIRE:
-            /* Kick ADC... */
-            ADC10CTL0 |= ENC | ADC10SC;
+            kick_adc();
             /* ...and go to sleep. */
             _BIS_SR_IRQ(LPM0_bits); /* HACK this only works because this function is always inlined into the ISR */
             break;

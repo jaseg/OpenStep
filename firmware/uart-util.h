@@ -6,12 +6,12 @@
 #include "main.h"
 
 inline void rs485_enable() {
-    P2OUT      |= (1<<RS485_EN_PIN);
+    P1OUT      |= (1<<RS485_EN_PIN);
 }
 
 inline void rs485_disable() {
-    rs485_enable();
-//    P2OUT      &= ~(1<<RS485_EN_PIN);
+    while (UCA0STAT&UCBUSY) ;
+    P1OUT      &= ~(1<<RS485_EN_PIN);
 }
 
 inline int uart_getc() {

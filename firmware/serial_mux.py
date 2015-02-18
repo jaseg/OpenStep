@@ -2,6 +2,7 @@
 import serial
 import threading
 import struct
+import time
 
 class TimeoutException(Exception):
 	pass
@@ -18,6 +19,12 @@ def macrange(mac, mask):
 
 def pack_mac(mac):
 	return [ mac[i]<<4 | mac[i+1] for i in range(0, len(mac), 2)]
+
+def writehack(s, foo):
+	s.setDTR(False)
+	print(foo)
+	s.write(foo)
+	s.setDTR(True)
 
 class SerialMux(object):
 
@@ -53,14 +60,13 @@ class SerialMux(object):
 
 	def _send_probe(self, mac, mask, next_address):
 		with self.ser as s:
-			print('probing', mac, mask, next_address)
-			s.write(b'\\#\xCC' + bytes([mask, next_address] + pack_mac(mac)))
+			writehack(s, b'\\#\xCC' + bytes([mask, next_address] + pack_mac(mac)))
 			timeout_tmp = s.timeout
 			s.timeout = 0.05
 			try:
-				s.read(1)
+				foo = s.read(1) == 0xFF
 				s.timeout = timeout_tmp
-				return True
+				return foo
 			except TimeoutException:
 				s.timeout = timeout_tmp
 				return False

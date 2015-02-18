@@ -29,6 +29,14 @@ typedef struct {
 } adc_res_t;
 
 extern volatile adc_res_t adc_res;
+extern volatile unsigned int adc_raw[ADC_OVERSAMPLING];
 extern const uint8_t CONFIG_MAC[];
+
+
+inline void kick_adc(void) {
+    ADC10DTC1   = ADC_OVERSAMPLING; /* Number of conversions */
+    ADC10SA     = (int)adc_raw;
+    ADC10CTL0  |= ENC | ADC10SC;
+}
 
 #endif//_MAIN_H

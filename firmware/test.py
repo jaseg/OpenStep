@@ -68,5 +68,5 @@ for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1']:
 
 s.discover()
 
-for chunk in chunked(sergen(s), 20):
+for chunk in chunked(sergen(s), 1):
     plotfoo(chunk)
