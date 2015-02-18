@@ -5,8 +5,7 @@
 #include "main.h"
 
 
-//const uint8_t CONFIG_MAC[] = {0x5f, 0xb3, 0x5d, 0xdd, 0x5b, 0xb6, 0x5e, 0xb7};
-const uint8_t CONFIG_MAC[] = {0x7e, 0x54, 0x75, 0x30, 0x4f, 0xe1, 0x95, 0x77};
+const uint8_t CONFIG_MAC[];
 
 volatile adc_res_t adc_res = {{0,0,0}};
 volatile unsigned int adc_raw[ADC_OVERSAMPLING];

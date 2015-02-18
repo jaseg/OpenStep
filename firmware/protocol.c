@@ -3,6 +3,7 @@
 
 #define CMD_GET_DATA          1
 #define CMD_SET_LEDS          2
+#define CMD_FLASH_LED         3
 
 #define BCMD_SET_LEDS         253
 #define BCMD_GET_DATA         254
@@ -113,6 +114,12 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
         case CMD_SET_LEDS:
             /* FIXME */
             break;
+        case CMD_FLASH_LED:
+            P2DIR      |= (1<<ST_YLW_PIN);
+            P2OUT      |= (1<<ST_YLW_PIN);
+            __delay_cycles(8000000);
+            P2OUT      &= ~(1<<ST_YLW_PIN);
+            P2DIR      &= ~(1<<ST_YLW_PIN);
     }
     return 0;
 }
