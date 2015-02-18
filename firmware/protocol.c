@@ -47,33 +47,13 @@ void ucarx_handler() {
 
     char c = UCA0RXBUF;
 
-    rs485_enable();
-    uart_putc(0x55);
-    uart_putc(0xCC);
-    uart_putc(0x55);
-    uart_putc(0xCC);
-
-    uart_putc(0x23);
-    uart_putc(0xCC);
-    uart_putc(0x55);
-    uart_putc(0xCC);
-    uart_putc(0x55);
-    uart_putc(0xFF);
-    uart_putc(0x42);
-
-    uart_putc(0x55);
-    uart_putc(0xFF);
-    uart_putc(0x81);
-    rs485_disable();
-    return;
-
 	if (state.escaped) {
         state.escaped = 0;
 		if (c == '#') {
 			state.receiving = 1;
 			state.just_counting = 0;
 			p = (char*)&pkt;
-			end = (char*)&pkt.payload.discovery;
+			end = (char*)&pkt.payload;
 			return;
 		}
 	} else if (c == '\\') {
@@ -114,7 +94,10 @@ inline static unsigned int handle_discovery_packet(char *p, pkt_t *pkt, rx_state
         if(nibble)
             if ((CONFIG_MAC[bcnt]&0xF0) != (pkt->payload.discovery.mac_mask[bcnt]&0xF0))
                 return 0;
+
+        rs485_enable();
         uart_putc(0xFF); /* "I'm here!" */
+        rs485_disable();
         current_address = pkt->payload.discovery.new_id;
     }
     return 0;
@@ -123,7 +106,9 @@ inline static unsigned int handle_discovery_packet(char *p, pkt_t *pkt, rx_state
 inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) {
     switch (pkt->cmd) {
         case CMD_GET_DATA:
+            rs485_enable();
             escaped_send(&adc_res);
+            rs485_disable();
             break;
         case CMD_SET_LEDS:
             /* FIXME */
@@ -140,7 +125,9 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
         case BCMD_GET_DATA:
             if (!state->just_counting) {
                 if (current_address == 0 ) {
+                    rs485_enable();
                     escaped_send(&adc_res);
+                    rs485_disable();
                 } else {
                     state->just_counting = 1;
                     /* bit of arcane information on this: nodes are numbered continuously beginning from one by the
@@ -149,7 +136,9 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
                 }
             } else {
                 state->just_counting = 0;
+                rs485_enable();
                 escaped_send(&adc_res);
+                rs485_disable();
             }
             break;
         case BCMD_ACQUIRE:

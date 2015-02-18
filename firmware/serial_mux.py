@@ -20,11 +20,6 @@ def macrange(mac, mask):
 def pack_mac(mac):
 	return [ mac[i]<<4 | mac[i+1] for i in range(0, len(mac), 2)]
 
-def writehack(s, foo):
-	s.setDTR(False)
-	print(foo)
-	s.write(foo)
-	s.setDTR(True)
 
 class SerialMux(object):
 
@@ -60,13 +55,19 @@ class SerialMux(object):
 
 	def _send_probe(self, mac, mask, next_address):
 		with self.ser as s:
-			writehack(s, b'\\#\xCC' + bytes([mask, next_address] + pack_mac(mac)))
+			s.flushInput()
+			s.flushInput()
+			foo = b'\\#\xCC' + bytes([mask, next_address] + pack_mac(mac))
+			s.write(foo)
 			timeout_tmp = s.timeout
-			s.timeout = 0.05
+			s.timeout = 0.01
 			try:
-				foo = s.read(1) == 0xFF
+				_sync, token = s.read(2)
+				print(_sync, token)
 				s.timeout = timeout_tmp
-				return foo
+				if token == 0xFF:
+					print(mask, mac)
+				return token == 0xFF
 			except TimeoutException:
 				s.timeout = timeout_tmp
 				return False
