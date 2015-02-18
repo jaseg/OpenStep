@@ -51,6 +51,7 @@ class SerialMux(object):
 				else:
 					print('-> found device.')
 					found.append((pack_mac(a), next_address)) # clone array
+		self.devices = found
 		return found
 
 	def _send_probe(self, mac, mask, next_address):
@@ -71,6 +72,23 @@ class SerialMux(object):
 			except TimeoutException:
 				s.timeout = timeout_tmp
 				return False
+
+	def flash_led(self, device):
+		with self.ser as s:
+			s.write(b'\\#'+bytes([device])+b'\x03')
+
+	def broadcast_acquire(self):
+		with self.ser as s:
+			s.write(b'\\#\xFF\xFF')
+	
+	def broadcast_collect_data(self):
+		with self.ser as s:
+			s.flushInput()
+			s.flushInput()
+			s.write(b'\\#\xFF\xFE')
+			rlen = 7 # sizeof(adc_res_t) == 6, 1 byte rs485 padding
+			bs = s.read(rlen*len(self.devices))
+			return [ struct.unpack('<HHH', bs[i*rlen:(i+1)*rlen][1:]) for i in range(len(self.devices)) ]
 	
 	def __del__(self):
 		self.ser.close()

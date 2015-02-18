@@ -139,7 +139,7 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
                     state->just_counting = 1;
                     /* bit of arcane information on this: nodes are numbered continuously beginning from one by the
                      * master. payload position in the cluster-response is determined by the node's address. */
-                    return sizeof(pkt->payload.adc)*current_address;
+                    return (sizeof(pkt->payload.adc) + 1)*current_address; /* add one for rs485 buffer byte */
                 }
             } else {
                 state->just_counting = 0;

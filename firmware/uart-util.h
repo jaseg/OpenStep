@@ -12,7 +12,7 @@ inline void uart_putc(char c) {
 
 inline void rs485_enable() {
     P1OUT      |= (1<<RS485_EN_PIN);
-    uart_putc(0);
+    uart_putc(0); /* send an empty byte to allow remote baud gens to lock to local clock */
 }
 
 inline void rs485_disable() {
