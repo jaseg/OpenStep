@@ -20,7 +20,15 @@ typedef struct {
     uint8_t receiving:1;
     uint8_t just_counting:1;
     uint8_t escaped:1;
+    uint8_t receiving_payload:1; /* used by some handlers */
 } rx_state_t;
+
+typedef union {
+    struct {
+        uint16_t r, g, b;
+    };
+    uint16_t ch[3];
+} led_pwm_t;
 
 typedef struct {
     uint8_t node_id;
@@ -31,6 +39,7 @@ typedef struct {
             uint8_t mac_mask[8];
         } discovery;
         adc_res_t adc;
+        led_pwm_t pwm;
     } payload;
 } pkt_t;
 
@@ -53,6 +62,7 @@ void ucarx_handler() {
 		if (c == '#') {
 			state.receiving = 1;
 			state.just_counting = 0;
+            state.receiving_payload = 0;
 			p = (char*)&pkt;
 			end = (char*)&pkt.payload;
 			return;
@@ -112,7 +122,15 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
             rs485_disable();
             break;
         case CMD_SET_LEDS:
-            /* FIXME */
+            if (!state->receiving_payload) {
+                state->receiving_payload = 1;
+                return sizeof(pkt->payload.pwm);
+            } else {
+                state->receiving_payload = 0;
+                TA1CCR0 = pkt->payload.pwm.r;
+                TA1CCR1 = pkt->payload.pwm.g;
+                TA1CCR2 = pkt->payload.pwm.b;
+            }
             break;
         case CMD_FLASH_LED:
             P2DIR      |= (1<<ST_YLW_PIN);
@@ -120,6 +138,7 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
             __delay_cycles(8000000);
             P2OUT      &= ~(1<<ST_YLW_PIN);
             P2DIR      &= ~(1<<ST_YLW_PIN);
+            break;
     }
     return 0;
 }
