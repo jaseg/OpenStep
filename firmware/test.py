@@ -6,6 +6,7 @@ from matplotlib import pyplot as plt
 import time
 import struct
 import numpy as np
+import sys
 
 w = 400
 nch = 3
@@ -25,16 +26,24 @@ def cavg(gen, n):
         for i in range(n):
             l.append(next(gen))
         yield [sum(l)/n for l in zip(*l)]
+
+def read_sample(s):
+    _pad,a,b,c = struct.unpack('<bHHH', s.ser.read(7))
+    return a,b,c
         
-def sample(s):
+def sample(s, n):
     s.ser.write(b'\\#\xFF\xFF')
     time.sleep(0.040) # maximum sample time should be around 30ms
     s.ser.write(b'\\#\xFF\xFE')
-    return struct.unpack('HHH', s.ser.read(6))
+    samples = [read_sample(s) for _i in range(n+1)]
+    return samples[0]
+#    time.sleep(0.040) # maximum sample time should be around 30ms
+#    s.ser.write(b'\\#'+bytes([dev])+b'\x01')
+#    return read_sample(s)
 
-def sergen(s):
+def sergen(s, dev):
     while True:
-        yield sample(s)
+        yield sample(s, dev)
             
 def chunked(gen, n):
     while True:
@@ -59,14 +68,17 @@ for _ in range(nch):
     ls.append(l)
 
 s = None
-for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1']:
+for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2', '/dev/ttyUSB3', '/dev/ttyUSB4', '/dev/ttyUSB5']:
     try:
         s = serial_mux.SerialMux(dev)
         break
     except:
         pass
 
-s.discover()
+ds = s.discover()
+print(ds)
 
-for chunk in chunked(sergen(s), 1):
+dev = int(sys.argv[1])
+
+for chunk in chunked(sergen(s, dev), 1):
     plotfoo(chunk)

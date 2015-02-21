@@ -44,18 +44,18 @@ void adc10_isr(void) {
 }
 
 
+/*
 void timera1_isr(void) __attribute__((interrupt(TIMER1_A1_VECTOR)));
 void timera1_isr(void) {
     TA1CTL   &= ~TAIFG;
     TA1CCTL0 &= ~OUTMOD_7;
-    TA1CCTL0 |= OUTMOD_1;
+    TA1CCTL0 |= OUTMOD_5;
     TA1CCTL1 &= ~OUTMOD_7;
-    TA1CCTL1 |= OUTMOD_1;
+    TA1CCTL1 |= OUTMOD_5;
     TA1CCTL2 &= ~OUTMOD_7;
-    TA1CCTL2 |= OUTMOD_1;
-    P2DIR      ^= (1<<ST_YLW_PIN);
-    P2OUT      ^= (1<<ST_YLW_PIN);
+    TA1CCTL2 |= OUTMOD_5;
 }
+*/
 
 
 int main(void){
@@ -66,17 +66,20 @@ int main(void){
     BCSCTL1     = CALBC1_16MHZ;
 
     /* PWM setup */
+    /*
     P2DIR      |= (1<<0) | (1<<1) | (1<<4);
+    P2OUT      &= ~((1<<0) | (1<<1) | (1<<4));
     P2SEL      |= (1<<0) | (1<<1) | (1<<4);
 
     TA1CTL      = TASSEL_2 | ID_0 | MC_0 | TACLR | TAIE;
-    TA1CCTL0    = OUTMOD_1;
-    TA1CCTL1    = OUTMOD_1;
-    TA1CCTL2    = OUTMOD_1;
+    TA1CCTL0    = OUTMOD_5 | OUT;
+    TA1CCTL1    = OUTMOD_5 | OUT;
+    TA1CCTL2    = OUTMOD_5 | OUT;
     TA1CCR0     = 0xC000;
     TA1CCR1     = 0xC000;
     TA1CCR2     = 0xC000;
     TA1CTL     |= MC_2;
+    */
 
     /* ADC setup */
     ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
@@ -101,7 +104,8 @@ int main(void){
     IE2 |= UCA0RXIE;
 
     /* Status LED setup */
-//    P2DIR      |= (1<<ST_GRN_PIN) | (1<<ST_YLW_PIN);
+    P2DIR      |= (1<<ST_GRN_PIN) | (1<<ST_YLW_PIN);
+    P2OUT      &= ~((1<<ST_GRN_PIN) | (1<<ST_YLW_PIN));
     
 //    P2OUT      &= ~(1<<ST_YLW_PIN);
 //    P2OUT      |= (1<<ST_GRN_PIN);
