@@ -4,8 +4,11 @@
 #define CMD_GET_DATA          1
 #define CMD_SET_LEDS          2
 #define CMD_FLASH_LED         3
+#define CMD_STATUS_OFF        4
+#define CMD_STATUS_GREEN      5
+#define CMD_STATUS_YELLOW     6
+#define CMD_STATUS_BOTH       7
 
-#define BCMD_SET_LEDS         253
 #define BCMD_GET_DATA         254
 #define BCMD_ACQUIRE          255 /* usually followed by a break of a few milliseconds */
 
@@ -132,6 +135,13 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
                 TA1CCR2 = pkt->payload.pwm.b;
             }
             break;
+        case CMD_STATUS_OFF:
+        case CMD_STATUS_GREEN:
+        case CMD_STATUS_YELLOW:
+        case CMD_STATUS_BOTH:
+            P2OUT      &= ~((1<<ST_GRN_PIN) | (1<<ST_YLW_PIN));
+            P2OUT      |= ((pkt->cmd&1) ? (1<<ST_GRN_PIN) : 0) | ((pkt->cmd&2) ? (1<<ST_YLW_PIN) : 0);
+            break;
         case CMD_FLASH_LED:
             P2DIR      |= (1<<ST_YLW_PIN);
             P2OUT      |= (1<<ST_YLW_PIN);
@@ -145,9 +155,6 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
 
 inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state) {
     switch (pkt->cmd) {
-        case CMD_SET_LEDS:
-            /* FIXME */
-            break;
         case BCMD_GET_DATA:
             if (!state->just_counting) {
                 if (current_address == 0 ) {

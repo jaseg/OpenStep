@@ -19,7 +19,7 @@ def plotfoo(dpoints):
         l.set_ydata(ydata[:,n])
     plt.draw()
     plt.pause(0.0000000001)
-    
+
 def cavg(gen, n):
     while True:
         l = []
@@ -36,6 +36,7 @@ def sample(s, n):
     time.sleep(0.040) # maximum sample time should be around 30ms
     s.ser.write(b'\\#\xFF\xFE')
     samples = [read_sample(s) for _i in range(n+1)]
+    print(samples)
     return samples[0]
 #    time.sleep(0.040) # maximum sample time should be around 30ms
 #    s.ser.write(b'\\#'+bytes([dev])+b'\x01')
