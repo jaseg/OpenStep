@@ -8,6 +8,7 @@ class TimeoutException(Exception):
 	pass
 
 escape = lambda s: s.replace(b'\\', b'\\\\')
+unescape = lambda s: s.replace(b'\\\\', b'\\')
 
 MAC_LEN = 16
 
@@ -25,10 +26,10 @@ class SerialMux(object):
 
 	def __init__(self, device=None, baudrate=115200, ser=None, timeout=1):
 		s = ser or LockableSerial(port=device, baudrate=baudrate, timeout=timeout)
-		#Trust me, without the following two lines it *wont* *work*. Fuck serial ports.
+		# Trust me, without the following two lines it *wont* *work*. Fuck serial ports.
 		s.setXonXoff(True)
 		s.setXonXoff(False)
-		#Reset Arduinos
+		# Reset Arduinos
 		s.setDTR(True)
 		s.setDTR(False)
 		self.ser = s
@@ -58,7 +59,7 @@ class SerialMux(object):
 		with self.ser as s:
 			s.flushInput()
 			s.flushInput()
-			foo = b'\\#\xCC' + bytes([mask, next_address] + pack_mac(mac))
+			foo = b'\\?\xCC' + bytes([mask, next_address] + pack_mac(mac))
 			s.write(foo)
 			timeout_tmp = s.timeout
 			s.timeout = 0.01
@@ -75,17 +76,17 @@ class SerialMux(object):
 
 	def flash_led(self, device):
 		with self.ser as s:
-			s.write(b'\\#'+bytes([device])+b'\x03')
+			s.write(b'\\?'+bytes([device])+b'\x03')
 
 	def broadcast_acquire(self):
 		with self.ser as s:
-			s.write(b'\\#\xFF\xFF')
+			s.write(b'\\?\xFF\xFF')
 	
 	def broadcast_collect_data(self):
 		with self.ser as s:
 			s.flushInput()
 			s.flushInput()
-			s.write(b'\\#\xFF\xFE')
+			s.write(b'\\?\xFF\xFE')
 			rlen = 7 # sizeof(adc_res_t) == 6, 1 byte rs485 padding
 			bs = s.read(rlen*len(self.devices))
 			return [ struct.unpack('<HHH', bs[i*rlen:(i+1)*rlen][1:]) for i in range(len(self.devices)) ]
@@ -111,4 +112,24 @@ class LockableSerial(serial.Serial):
 		if len(data) != n:
 			raise TimeoutException('Read {} bytes trying to read {}'.format(len(data), n))
 		return data
+
+	def rx_unescape(self, n):
+		self.flushInput()
+		self.flushInput()
+		r = b'$'
+		while r != b'!':
+			r = self.read(1)
+		return self.read_unescape(n)
+
+	def read_unescape(self, n):
+		buf = b''
+		escaped = False
+		while len(buf)<n:
+			r = self.read(1)
+			if not escaped and r == b'\\':
+				escaped = True
+			else:
+				buf += r
+				escaped = False
+		return buf
 

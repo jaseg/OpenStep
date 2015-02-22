@@ -62,7 +62,7 @@ void ucarx_handler() {
 
 	if (state.escaped) {
         state.escaped = 0;
-		if (c == '#') {
+		if (c == '?') {
 			state.receiving = 1;
 			state.just_counting = 0;
             state.receiving_payload = 0;
@@ -74,7 +74,7 @@ void ucarx_handler() {
         state.escaped = 1;
         return;
 	}
-	//escape sequence handling completed. c now contains the next char of the payload.
+	// escape sequence handling completed. c now contains the next char of the payload.
 
 	if (!state.receiving)
 		return;
@@ -156,10 +156,14 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
 inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state) {
     switch (pkt->cmd) {
         case BCMD_GET_DATA:
+            __delay_cycles(16000);
             if (!state->just_counting) {
                 if (current_address == 0 ) {
                     rs485_enable();
+                    __delay_cycles(16000);
+                    send_sof();
                     escaped_send(&adc_res);
+                    __delay_cycles(16000);
                     rs485_disable();
                 } else {
                     state->just_counting = 1;

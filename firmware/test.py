@@ -28,18 +28,18 @@ def cavg(gen, n):
         yield [sum(l)/n for l in zip(*l)]
 
 def read_sample(s):
-    _pad,a,b,c = struct.unpack('<bHHH', s.ser.read(7))
+    a,b,c = struct.unpack('<HHH', s.ser.rx_unescape(6))
     return a,b,c
         
 def sample(s, n):
-    s.ser.write(b'\\#\xFF\xFF')
+    s.ser.write(b'\xFF'*20+b'\\?\xFF\xFF')
     time.sleep(0.040) # maximum sample time should be around 30ms
-    s.ser.write(b'\\#\xFF\xFE')
+    s.ser.write(b'\\?\xFF\xFE')
     samples = [read_sample(s) for _i in range(n+1)]
     print(samples)
     return samples[0]
 #    time.sleep(0.040) # maximum sample time should be around 30ms
-#    s.ser.write(b'\\#'+bytes([dev])+b'\x01')
+#    s.ser.write(b'\\?'+bytes([dev])+b'\x01')
 #    return read_sample(s)
 
 def sergen(s, dev):
