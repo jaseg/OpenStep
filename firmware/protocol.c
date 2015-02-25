@@ -174,6 +174,7 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
             } else {
                 state->just_counting = 0;
                 rs485_enable();
+                send_sof();
                 escaped_send(&adc_res);
                 rs485_disable();
             }

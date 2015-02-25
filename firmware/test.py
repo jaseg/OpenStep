@@ -9,7 +9,6 @@ import numpy as np
 import sys
 
 w = 400
-nch = 3
 off = 100
 
 def plotfoo(dpoints):
@@ -27,17 +26,18 @@ def cavg(gen, n):
             l.append(next(gen))
         yield [sum(l)/n for l in zip(*l)]
 
-def read_sample(s):
+def read_sample(s, i):
     a,b,c = struct.unpack('<HHH', s.ser.rx_unescape(6))
-    return a,b,c
+    print('sampled:', a, b, c)
+    return a-300+150*i,b-300+150*i,c-300+150*i
         
 def sample(s, n):
-    s.ser.write(b'\xFF'*20+b'\\?\xFF\xFF')
+    s.ser.write(b'\\?\xFF\xFF')
     time.sleep(0.040) # maximum sample time should be around 30ms
     s.ser.write(b'\\?\xFF\xFE')
-    samples = [read_sample(s) for _i in range(n+1)]
-    print(samples)
-    return samples[0]
+    samples = [read_sample(s, i) for i in range(n)]
+    print('samples', samples)
+    return [ b for a in samples for b in a ]
 #    time.sleep(0.040) # maximum sample time should be around 30ms
 #    s.ser.write(b'\\?'+bytes([dev])+b'\x01')
 #    return read_sample(s)
@@ -58,15 +58,7 @@ plt.ion()
 plt.xlim([0,w-1])
 plt.ylim([0,1024])
 
-ydata = np.zeros((w,nch))
-
 ls = []
-
-for _ in range(nch):
-    l, = plt.plot(np.arange(len(ydata)))
-    l.set_alpha(0.7)
-    l.set_xdata(np.arange(0,w))
-    ls.append(l)
 
 s = None
 for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2', '/dev/ttyUSB3', '/dev/ttyUSB4', '/dev/ttyUSB5']:
@@ -79,7 +71,15 @@ for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2', '/dev/ttyUSB3', '/de
 ds = s.discover()
 print(ds)
 
-dev = int(sys.argv[1])
+nch = 12
 
-for chunk in chunked(sergen(s, dev), 1):
+ydata = np.zeros((w,nch))
+
+for _ in range(nch):
+    l, = plt.plot(np.arange(len(ydata)))
+    l.set_alpha(0.7)
+    l.set_xdata(np.arange(0,w))
+    ls.append(l)
+
+for chunk in chunked(sergen(s, 4), 1):
     plotfoo(chunk)

@@ -44,7 +44,6 @@ void adc10_isr(void) {
 }
 
 
-/*
 void timera1_isr(void) __attribute__((interrupt(TIMER1_A1_VECTOR)));
 void timera1_isr(void) {
     TA1CTL   &= ~TAIFG;
@@ -55,7 +54,6 @@ void timera1_isr(void) {
     TA1CCTL2 &= ~OUTMOD_7;
     TA1CCTL2 |= OUTMOD_5;
 }
-*/
 
 
 int main(void){
@@ -69,7 +67,6 @@ int main(void){
     BCSCTL1     = CALBC1_16MHZ;
 
     /* PWM setup */
-    /*
     P2DIR      |= (1<<0) | (1<<1) | (1<<4);
     P2OUT      &= ~((1<<0) | (1<<1) | (1<<4));
     P2SEL      |= (1<<0) | (1<<1) | (1<<4);
@@ -82,7 +79,6 @@ int main(void){
     TA1CCR1     = 0xC000;
     TA1CCR2     = 0xC000;
     TA1CTL     |= MC_2;
-    */
 
     /* ADC setup */
     ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
