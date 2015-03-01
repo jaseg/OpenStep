@@ -29,7 +29,7 @@ int main(argc, argv)
         return 1;
     }
 
-    int fd = open(argv[1], O_RDONLY);
+    int fd = open(argv[1], O_RDWR | O_NOCTTY | O_SYNC);
     if (fd < 0) {
         fprintf(stderr, "Can't open %s: %s\n", argv[1], strerror(errno));
         return 2;
@@ -37,19 +37,46 @@ int main(argc, argv)
 
     if (isatty(fd) != 1) {
         fprintf(stderr, "Not a TTY: %s\n", argv[1]);
-        return 2;
+        goto error;
     }
 
     struct termios tio;
-    cfsetspeed(&tio, B115200);
-    tcsetattr(fd, 0, &tio);
+    memset(&tio, 0, sizeof tio);
+    if (tcgetattr(fd, &tio) != 0) {
+        fprintf(stderr, "Error reading tty properties\n");
+        goto error;
+    }
+    cfsetospeed(&tio, B115200);
+    cfsetispeed(&tio, B115200);
+    tio.c_cflag = (tio.c_cflag & ~CSIZE) | CS8;     // 8-bit chars
+    tio.c_iflag &= ~IGNBRK;         /* disable break processing */
+    tio.c_lflag = 0;                /* no signaling chars, no echo, no canonical processing */
+    tio.c_oflag = 0;                /* no remapping, no delays */
+    tio.c_cc[VMIN]  = 1;            /* read doesn't block */
+    tio.c_cc[VTIME] = 50;           /* 5.0 seconds read timeout */
+    tio.c_iflag &= ~(IXON | IXOFF | IXANY); /* shut off xon/xoff ctrl */
+    tio.c_cflag |= (CLOCAL | CREAD);        /* ignore modem controls, */
+    tio.c_cflag &= ~(PARENB | PARODD);      /* shut off parity */
+    tio.c_cflag &= ~CSTOPB;
+    tio.c_cflag &= ~CRTSCTS;
+    if (tcsetattr(fd, TCSANOW, &tio) != 0) {
+        fprintf(stderr, "Error setting tty properties\n");
+        goto error;
+    }
 
-    node_info_t *inf;
+    printf("TTY opened.\n");
+
+    node_info_t *inf = NULL;
     ssize_t ndev;
     if ((ndev=cbm_discover(fd, &inf)) < 0) {
         fprintf(stderr, "Couldn't enumerate bus\n");
         goto error;
     }
+    if (ndev == 0) {
+        fprintf(stderr, "Found absolutely no devices on bus\n");
+        goto error;
+    }
+    printf("Found %zd devices on bus.\n", ndev);
 
     mqtt_step_msg_t *msg = malloc(sizeof(mqtt_step_msg_t) + sizeof(sample_data_t)*ndev);
     if (!msg) {
@@ -78,7 +105,9 @@ int main(argc, argv)
     while (23) {
         if (read_adc(fd, msg->stepdata, ndev) < 0) {
             fprintf(stderr, "Couldn't read sample data\n");
-            goto error;
+            usleep(500000L);
+            continue;
+//            goto error;
         }
         if (mqtt_publish_steps(mqtt_st, msg) < 0) {
             fprintf(stderr, "Couldn't publish sample data via MQTT\n");
