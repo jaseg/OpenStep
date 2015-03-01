@@ -20,10 +20,9 @@
 uint16_t current_address = INVALID_ADDRESS;
 
 typedef struct {
-    uint8_t receiving:1;
-    uint8_t just_counting:1;
     uint8_t escaped:1;
     uint8_t receiving_payload:1; /* used by some handlers */
+    int8_t ignore_count;
 } rx_state_t;
 
 typedef union {
@@ -63,40 +62,46 @@ void ucarx_handler() {
 	if (state.escaped) {
         state.escaped = 0;
 		if (c == '?') {
-			state.receiving = 1;
-			state.just_counting = 0;
+			state.ignore_count = 0;
             state.receiving_payload = 0;
 			p = (char*)&pkt;
 			end = (char*)&pkt.payload;
 			return;
-		}
+		} else if (c == '!' && state.ignore_count > 0) {
+            state.ignore_count--;
+            return;
+        }
 	} else if (c == '\\') {
         state.escaped = 1;
         return;
 	}
 	// escape sequence handling completed. c now contains the next char of the payload.
 
-	if (!state.receiving)
+	if (state.ignore_count)
 		return;
-    if (!state.just_counting)
-        *p = c;
-    p++;
+    *p++ = c;
 
 	if (p == end) {
-        unsigned int n = 0;
+        int n = 0;
         if (pkt.node_id == DISCOVERY_ADDRESS) {
-            n = handle_discovery_packet(p, &pkt, &state);
+            n = handle_discovery_packet(p, &pkt);
         } else if (pkt.node_id == current_address) {
             n = handle_command_packet(&pkt, &state);
         } else if (pkt.node_id == BROADCAST_ADDRESS) {
             n = handle_broadcast_packet(&pkt, &state);
         }
-        state.receiving = !!n;
-        end += n;
+
+        //state.ignore_count |=-!n;
+        if (n < 0)
+            state.ignore_count = -n;
+        else if (n == 0)
+            state.ignore_count = -1;
+        else
+            end += n;
     }
 }
 
-inline static unsigned int handle_discovery_packet(char *p, pkt_t *pkt, rx_state_t *state) {
+inline static int handle_discovery_packet(char *p, pkt_t *pkt) {
     if (p == (char*)&pkt->payload.discovery) {
         return sizeof(pkt->payload.discovery)-1;
     } else {
@@ -117,7 +122,7 @@ inline static unsigned int handle_discovery_packet(char *p, pkt_t *pkt, rx_state
     return 0;
 }
 
-inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) {
+inline static int handle_command_packet(pkt_t *pkt, rx_state_t *state) {
     switch (pkt->cmd) {
         case CMD_GET_DATA:
             rs485_enable();
@@ -153,7 +158,7 @@ inline static unsigned int handle_command_packet(pkt_t *pkt, rx_state_t *state) 
     return 0;
 }
 
-inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state) {
+inline static int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state) {
     switch (pkt->cmd) {
         case BCMD_GET_DATA:
             __delay_cycles(16000);
@@ -169,7 +174,7 @@ inline static unsigned int handle_broadcast_packet(pkt_t *pkt, rx_state_t *state
                     state->just_counting = 1;
                     /* bit of arcane information on this: nodes are numbered continuously beginning from one by the
                      * master. payload position in the cluster-response is determined by the node's address. */
-                    return (sizeof(pkt->payload.adc) + 1)*current_address; /* add one for rs485 buffer byte */
+                    return current_address-1;
                 }
             } else {
                 state->just_counting = 0;

@@ -11,6 +11,7 @@ inline void uart_putc(char c) {
 }
 
 inline void send_sof(void) {
+    uart_putc('\\');
     uart_putc('!');
 }
 
