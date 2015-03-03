@@ -2,15 +2,13 @@
 #include "main.h"
 
 #define CMD_GET_DATA          1
-#define CMD_SET_LEDS          2
+#define CMD_SET_PWM           2
 #define CMD_FLASH_LED         3
 #define CMD_STATUS_OFF        4
 #define CMD_STATUS_GREEN      5
 #define CMD_STATUS_YELLOW     6
 #define CMD_STATUS_BOTH       7
-
-#define BCMD_GET_DATA         254
-#define BCMD_ACQUIRE          255 /* usually followed by a break of a few milliseconds */
+#define CMD_ACQUIRE           255 /* usually followed by a break of a few milliseconds */
 
 #define DISCOVERY_ADDRESS     0xCC
 #define INVALID_ADDRESS       0xFE
@@ -27,18 +25,17 @@ typedef union {
 } led_pwm_t;
 
 #define PKT_BUF_LEN sizeof(_pkt_hack)
-#define PKT_MEM (_TYPE) struct __attribute__((__packed__)) { char _pad[PKT_BUF_LEN-sizeof(_TYPE)]; _TYPE; }
+#define PKT_MEM(type, name) struct __attribute__((__packed__)) { char _pad_##type[PKT_BUF_LEN-sizeof(type)]; type name; }
  
 union {
-    adc_res_t;
-    led_pwm_t;
+    adc_res_t adc;
+    led_pwm_t pwm;
 } _pkt_hack;
 
 typedef struct {
     union {
-        PKT_MEM(dsc_inf_t);
-        PKT_MEM(adc_res_t);
-        PKT_MEM(led_pwm_t);
+        PKT_MEM(adc_res_t, adc);
+        PKT_MEM(led_pwm_t, pwm);
     };
     char _end[0];
 } pkt_t;
@@ -48,30 +45,33 @@ typedef struct {
 
 /* protocol handling declarations */
 void ucarx_handler(void) __attribute__((interrupt(USCIAB0RX_VECTOR)));
-static int handle_discovery_packet(char *p, pkt_t *pkt, rx_state_t *state);
-static int handle_command(int broadcast, pkt_t *pkt, rx_state_t *state);
+static int prepare_packet(int broadcast, char cmd);
+static int wait_elapsed(int broadcast, char cmd);
+static int handle_command(int broadcast, int cmd, pkt_t* pkt);
 
+/* Please excuse the state machine hackery. This is supposed to be *fast*. Fun fact: three more states and we're nearly
+ * as complex as TCP. This function is compiled about 400 byte large. */
 void ucarx_handler() {
-	static void *state;
+	static void *state = &&idle;
 	static char* p;
 	static struct {
         int escaped:1;
         int broadcast:1;
         unsigned int cmd:6;
-    } bits;
+    } bits = {0, 0, 0};
 	static pkt_t pkt;
 
-    char c = UCA0RXBUF;
+    unsigned char c = UCA0RXBUF;
     
     if (bits.escaped) {
         if (c == '?') {
             state = &&preamble;
-            p = pkt.end;
-            return;
+            p = pkt._end;
+            goto exit;
         }
     } else if (c == '\\') {
         bits.escaped = 1;
-        return;
+        goto exit;
     }
 
     goto *state;
@@ -84,34 +84,34 @@ preamble:
         bits.broadcast = 0;
         state = &&packet_pre;
     } else if (c == DISCOVERY_ADDRESS) {
-        p = &pkt.dsc_inf_t;
-        state = &&discovery;
+        state = &&discovery_mask;
     } else {
         state = &&idle;
     }
-    return;
+    goto exit;
 
-discovery:
+/* Bus enumeration stuff */
+discovery_mask:
     /* We are abusing bits.broadcast here to store whether the mask ends in the middle of a byte */
-    bits.broadcast = c&1;
     /* We are abusing p here as a simple integer to store the number of remaining mask bytes */
-    p = (void*) ((c+1)>>1);
+    p = (void*) (c>>1);
     state = (c&1) ? &&discovery_nibble : &&discovery_match;
-    return;
+    goto exit;
 
-discovery_match:
-    if (CONFIG_MAC[(size_t) p] != c)
-        state = &&idle;
-    else if (!--p)
-        state = bits.broadcast ? &&discovery_nibble : &&discovery_response;
-    return;
-
+    // 5f b3 5d dd 5b b6 65 89
 discovery_nibble:
-    if ((CONFIG_MAC[(size_t) p]&0xF0) != (c&0xF0))
+    if ((CONFIG_MAC[(unsigned int) p]&0xF0) != (c&0xF0))
         state = &&idle;
     else
+        state = p ? &&discovery_match : &&discovery_response;
+    goto exit;
+
+discovery_match:
+    if (CONFIG_MAC[(unsigned int) --p] != c)
+        state = &&idle;
+    else if (!p)
         state = &&discovery_response;
-    return;
+    goto exit;
 
 discovery_response:
     current_address = c;
@@ -119,45 +119,49 @@ discovery_response:
     rs485_enable();
     uart_putc(0xFF); /* "I'm here!" */
     rs485_disable();
-    return;
+    goto exit;
 
+/* Command packet handling */
 packet_pre:
-    int n = prepare_packet(bits.broadcast, c);
     bits.cmd = c;
+    int n = prepare_packet(bits.broadcast, c);
     if (n > 0) {
         state = &&packet_post;
-        p = pkt.end - n;
+        p = pkt._end - n;
     } else if (n < 0) {
         state = &&packet_wait;
-        p = pkt.end + n;
+        p = pkt._end + n;
     } else {
-        handle_command(bits.broadcast, bits.cmd, &pkt);
+        if (handle_command(bits.broadcast, bits.cmd, &pkt))
+            _BIS_SR_IRQ(LPM0_bits);
         state = &&idle;
     }
-    return;
+    goto exit;
 
 packet_wait:
     if (bits.escaped && c == '!') {
         *p++ = c;
-        if (p == pkt.end) {
+        if (p == pkt._end) {
             p -= wait_elapsed(bits.broadcast, bits.cmd);
             state = &&packet_post;
         }
     }
-    return;
+    goto exit;
 
 packet_post:
     *p++ = c;
-    if (p == pkt.end) {
-        handle_command(bits.broadcast, bits.cmd, &pkt);
+    if (p == pkt._end) {
+        if (handle_command(bits.broadcast, bits.cmd, &pkt))
+            _BIS_SR_IRQ(LPM0_bits);
         state = &&idle;
     }
 
 idle:
+exit:
     return;
 }
 
-inline static int prepare_packet(int broadcast, char cmd) {
+static int prepare_packet(int broadcast, char cmd) {
     if (broadcast) {
         switch (cmd) {
         case CMD_SET_PWM:
@@ -172,7 +176,7 @@ inline static int prepare_packet(int broadcast, char cmd) {
     return 0;
 }
 
-inline static int wait_elapsed(int broadcast, char cmd) {
+static int wait_elapsed(int broadcast, char cmd) {
     switch (cmd) {
         case CMD_GET_DATA:
             return sizeof(adc_res_t);
@@ -180,12 +184,12 @@ inline static int wait_elapsed(int broadcast, char cmd) {
     return 0;
 }
 
-inline static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
+static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
     switch (cmd) {
     case CMD_SET_PWM:
-        TA1CCR0 = pkt->led_pwm_t.r;
-        /*TA1CCR1 = pkt->led_pwm_t.g;*/
-        TA1CCR2 = pkt->led_pwm_t.b;
+        TA1CCR0 = pkt->pwm.r;
+        /*TA1CCR1 = pkt->pwm.g;*/
+        TA1CCR2 = pkt->pwm.b;
         break;
 
     case CMD_STATUS_OFF:
@@ -204,7 +208,7 @@ inline static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
         P2DIR      &= ~(1<<ST_YLW_PIN);
         break;
 
-    case CMD_GET_DATA:
+    case CMD_GET_DATA: /* FIXME try to get rid of the following delays */
         __delay_cycles(16000);
         rs485_enable();
         __delay_cycles(16000);
@@ -217,8 +221,8 @@ inline static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
     case CMD_ACQUIRE:
         kick_adc();
         /* ...and go to sleep. */
-        _BIS_SR_IRQ(LPM0_bits); /* HACK this only works because this function is always inlined into the ISR */
-        break;
+        return 1;
     }
+    return 0;
 }
 

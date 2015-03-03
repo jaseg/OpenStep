@@ -71,6 +71,9 @@ $(OUTDIR)/%.o: %.c | $(OUTDIR)
 %.lst: %.c
 	$(CC) -c $(ASFLAGS) -Wa,-anlhd $< > $@
 
+%.S: %.c
+	$(CC) -S -c $(CFLAGS) $<
+
 # create the output directory
 $(OUTDIR):
 	$(MKDIR) $(OUTDIR)
@@ -82,5 +85,8 @@ clean:
 # build in docker buildbox
 vm:
 	docker run -i -v $(shell realpath .):/root/build -w /root/build msp-buildbox make
+
+vm-lst:
+	docker run -i -v $(shell realpath .):/root/build -w /root/build msp-buildbox make protocol.S
 
 .PHONY: all clean vm

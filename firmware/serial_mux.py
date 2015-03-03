@@ -57,9 +57,11 @@ class SerialMux(object):
 
 	def _send_probe(self, mac, mask, next_address):
 		with self.ser as s:
+			print('    probing', next_address, mask, mac)
 			s.flushInput()
 			s.flushInput()
-			foo = b'\\?\xCC' + bytes([mask, next_address] + pack_mac(mac))
+			foo = b'\\?\xCC' + bytes([mask] + list(reversed(pack_mac(mac)[:(mask+1)//2])) + [next_address])
+			print('      tx', foo)
 			s.write(foo)
 			timeout_tmp = s.timeout
 			s.timeout = 0.01
