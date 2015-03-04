@@ -26,25 +26,14 @@ def cavg(gen, n):
             l.append(next(gen))
         yield [sum(l)/n for l in zip(*l)]
 
-def read_sample(s, i):
-    a,b,c = struct.unpack('<HHH', s.ser.rx_unescape(6))
-    print('sampled:', a, b, c)
-    return a-300+150*i,b-300+150*i,c-300+150*i
-        
-def sample(s, n):
-    s.ser.write(b'\\?\xFF\xFF')
-    time.sleep(0.040) # maximum sample time should be around 30ms
-    s.ser.write(b'\\?\xFF\xFE')
-    samples = [read_sample(s, i) for i in range(n)]
-    print('samples', samples)
-    return [ b for a in samples for b in a ]
-#    time.sleep(0.040) # maximum sample time should be around 30ms
-#    s.ser.write(b'\\?'+bytes([dev])+b'\x01')
-#    return read_sample(s)
-
 def sergen(s, dev):
     while True:
-        yield sample(s, dev)
+        s.broadcast_acquire()
+        try:
+#            yield [ e-500+50*i for i,e in enumerate(e for p in s.broadcast_collect_data() for e in p) ]
+            yield [ e-500+30*i for i,e in enumerate(p for i in range(len(s.devices)) for p in s.collect_data(i)) ]
+        except:
+            pass
             
 def chunked(gen, n):
     while True:
@@ -71,7 +60,8 @@ for dev in ['/dev/ttyUSB0', '/dev/ttyUSB1', '/dev/ttyUSB2', '/dev/ttyUSB3', '/de
 ds = s.discover()
 print(ds)
 
-nch = 12
+#nch = 3
+nch = len(ds)*3
 
 ydata = np.zeros((w,nch))
 

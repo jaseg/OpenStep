@@ -24,7 +24,7 @@ def pack_mac(mac):
 
 class SerialMux(object):
 
-	def __init__(self, device=None, baudrate=115200, ser=None, timeout=1):
+	def __init__(self, device=None, baudrate=115200, ser=None, timeout=0.2):
 		s = ser or LockableSerial(port=device, baudrate=baudrate, timeout=timeout)
 		# Trust me, without the following two lines it *wont* *work*. Fuck serial ports.
 		s.setXonXoff(True)
@@ -82,16 +82,30 @@ class SerialMux(object):
 
 	def broadcast_acquire(self):
 		with self.ser as s:
-			s.write(b'\\?\xFF\xFF')
-	
+			s.write(b'\\?\xFF\x04') # turn off status leds for good measure
+			s.write(b'\\?\xFF\x08')
+
 	def broadcast_collect_data(self):
 		with self.ser as s:
 			s.flushInput()
 			s.flushInput()
-			s.write(b'\\?\xFF\xFE')
-			rlen = 7 # sizeof(adc_res_t) == 6, 1 byte rs485 padding
-			bs = s.read(rlen*len(self.devices))
-			return [ struct.unpack('<HHH', bs[i*rlen:(i+1)*rlen][1:]) for i in range(len(self.devices)) ]
+			s.write(b'\\?\xFF\x01')
+			def try_rx(i):
+				try:
+					return s.rx_unescape(6)
+				except:
+					print(i, end=' ')
+			return [ struct.unpack('<HHH', try_rx(_i)) for _i in range(len(self.devices)) ]
+
+	def collect_data(self, device):
+		with self.ser as s:
+			s.flushInput()
+			s.flushInput()
+			s.write(b'\\?'+bytes([device])+b'\x01')
+			res = s.rx_unescape(6)
+			foo = struct.unpack('<HHH', res)
+			print(foo, res)
+			return foo
 	
 	def __del__(self):
 		self.ser.close()
@@ -116,8 +130,6 @@ class LockableSerial(serial.Serial):
 		return data
 
 	def rx_unescape(self, n):
-		self.flushInput()
-		self.flushInput()
 		r = b'$'
 		while r != b'!':
 			r = self.read(1)

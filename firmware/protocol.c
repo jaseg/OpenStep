@@ -8,7 +8,7 @@
 #define CMD_STATUS_GREEN      5
 #define CMD_STATUS_YELLOW     6
 #define CMD_STATUS_BOTH       7
-#define CMD_ACQUIRE           255 /* usually followed by a break of a few milliseconds */
+#define CMD_ACQUIRE           8 /* usually followed by a break of a few milliseconds */
 
 #define DISCOVERY_ADDRESS     0xCC
 #define INVALID_ADDRESS       0xFE
@@ -140,7 +140,7 @@ packet_pre:
 
 packet_wait:
     if (bits.escaped && c == '!') {
-        *p++ = c;
+        p++;
         if (p == pkt._end) {
             p -= wait_elapsed(bits.broadcast, bits.cmd);
             state = &&packet_post;
@@ -170,7 +170,7 @@ static int prepare_packet(int broadcast, char cmd) {
         case CMD_GET_DATA:
             /* A bit of arcane information on this: nodes are numbered continuously beginning from one by the master.
              * payload position in the cluster-response is determined by the node's address. */
-            return -(current_address-1);
+            return -current_address;
         }
     }
     return 0;
@@ -201,20 +201,18 @@ static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
         break;
 
     case CMD_FLASH_LED:
-        P2DIR      |= (1<<ST_YLW_PIN);
+//        P2DIR      |= (1<<ST_YLW_PIN);
         P2OUT      |= (1<<ST_YLW_PIN);
         __delay_cycles(8000000);
         P2OUT      &= ~(1<<ST_YLW_PIN);
-        P2DIR      &= ~(1<<ST_YLW_PIN);
+//        P2DIR      &= ~(1<<ST_YLW_PIN);
         break;
 
     case CMD_GET_DATA: /* FIXME try to get rid of the following delays */
-        __delay_cycles(16000);
+        __delay_cycles(1600);
         rs485_enable();
-        __delay_cycles(16000);
         send_sof();
         escaped_send(&adc_res);
-        __delay_cycles(16000);
         rs485_disable();
         break;
 
