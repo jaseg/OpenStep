@@ -24,7 +24,7 @@ def pack_mac(mac):
 
 class SerialMux(object):
 
-	def __init__(self, device=None, baudrate=115200, ser=None, timeout=0.2):
+	def __init__(self, device=None, baudrate=115200, ser=None, timeout=0.1):
 		s = ser or LockableSerial(port=device, baudrate=baudrate, timeout=timeout)
 		# Trust me, without the following two lines it *wont* *work*. Fuck serial ports.
 		s.setXonXoff(True)
@@ -57,20 +57,20 @@ class SerialMux(object):
 
 	def _send_probe(self, mac, mask, next_address):
 		with self.ser as s:
-			print('    probing', next_address, mask, mac)
+#			print('    probing', next_address, mask, mac)
 			s.flushInput()
 			s.flushInput()
 			foo = b'\\?\xCC' + bytes([mask] + list(reversed(pack_mac(mac)[:(mask+1)//2])) + [next_address])
-			print('      tx', foo)
+#			print('      tx', foo)
 			s.write(foo)
 			timeout_tmp = s.timeout
 			s.timeout = 0.01
 			try:
 				_sync, token = s.read(2)
-				print(_sync, token)
+#				print(_sync, token)
 				s.timeout = timeout_tmp
-				if token == 0xFF:
-					print(mask, mac)
+#				if token == 0xFF:
+#					print(mask, mac)
 				return token == 0xFF
 			except TimeoutException:
 				s.timeout = timeout_tmp
@@ -94,7 +94,7 @@ class SerialMux(object):
 				try:
 					return s.rx_unescape(6)
 				except:
-					print(i, end=' ')
+					print('Error at', i)
 			return [ struct.unpack('<HHH', try_rx(_i)) for _i in range(len(self.devices)) ]
 
 	def collect_data(self, device):
@@ -104,7 +104,6 @@ class SerialMux(object):
 			s.write(b'\\?'+bytes([device])+b'\x01')
 			res = s.rx_unescape(6)
 			foo = struct.unpack('<HHH', res)
-			print(foo, res)
 			return foo
 	
 	def __del__(self):

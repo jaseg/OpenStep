@@ -8,7 +8,9 @@
 #define CMD_STATUS_GREEN      5
 #define CMD_STATUS_YELLOW     6
 #define CMD_STATUS_BOTH       7
-#define CMD_ACQUIRE           8 /* usually followed by a break of a few milliseconds */
+#define CMD_AUTONOMOUS        8
+#define CMD_CENTRALIZED       9
+#define CMD_ACQUIRE           10 /* usually followed by a break of a few milliseconds */
 
 #define DISCOVERY_ADDRESS     0xCC
 #define INVALID_ADDRESS       0xFE
@@ -187,9 +189,8 @@ static int wait_elapsed(int broadcast, char cmd) {
 static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
     switch (cmd) {
     case CMD_SET_PWM:
-        TA1CCR0 = pkt->pwm.r;
-        /*TA1CCR1 = pkt->pwm.g;*/
-        TA1CCR2 = pkt->pwm.b;
+        P2OUT      &= ~((1<<0) | (1<<1) | (1<<4));
+        P2OUT      |= ((!!pkt->pwm.r)<<0) | ((!!pkt->pwm.g)<<1) | ((!!pkt->pwm.b)<<4);
         break;
 
     case CMD_STATUS_OFF:
@@ -206,6 +207,14 @@ static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
         __delay_cycles(8000000);
         P2OUT      &= ~(1<<ST_YLW_PIN);
 //        P2DIR      &= ~(1<<ST_YLW_PIN);
+        break;
+
+    case CMD_AUTONOMOUS:
+        autonomous = 1;
+        break;
+
+    case CMD_CENTRALIZED:
+        autonomous = 0;
         break;
 
     case CMD_GET_DATA: /* FIXME try to get rid of the following delays */

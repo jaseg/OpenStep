@@ -87,6 +87,7 @@ vm:
 	docker run -i -v $(shell realpath .):/root/build -w /root/build msp-buildbox make
 
 vm-lst:
+	docker run -i -v $(shell realpath .):/root/build -w /root/build msp-buildbox make main.S
 	docker run -i -v $(shell realpath .):/root/build -w /root/build msp-buildbox make protocol.S
 
 .PHONY: all clean vm

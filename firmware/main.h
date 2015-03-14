@@ -31,6 +31,7 @@ typedef struct {
 extern volatile adc_res_t adc_res;
 extern volatile unsigned int adc_raw[ADC_OVERSAMPLING];
 extern const uint8_t CONFIG_MAC[8] __attribute__((section(".infomem.bss")));
+extern volatile int autonomous;
 
 
 inline void kick_adc(void) {

@@ -5,10 +5,14 @@
 #include "main.h"
 
 
+#define THRES 30
+
+
 const uint8_t CONFIG_MAC[];
 
 volatile adc_res_t adc_res = {{0,0,0}};
 volatile unsigned int adc_raw[ADC_OVERSAMPLING];
+volatile int autonomous = 1;
 
 
 void adc10_isr(void) __attribute__((interrupt(ADC10_VECTOR)));
@@ -27,14 +31,28 @@ void adc10_isr(void) {
     switch (ADC10CTL1) {
         case ADC10CTL1_FLAGS_CH1:
             ADC10CTL1 = ADC10CTL1_FLAGS_CH2;
+            if (autonomous) {
+                P2OUT      &= ~(1<<0);
+                P2OUT      |= ((!!((adc_res.ch[0]-acc)+THRES/2 < THRES))<<0);
+            }
             adc_res.ch[0] = acc;
             break;
         case ADC10CTL1_FLAGS_CH2:
             ADC10CTL1 = ADC10CTL1_FLAGS_CH3;
+            if (autonomous) {
+                P2OUT      &= ~(1<<1);
+                P2OUT      |= ((!!((adc_res.ch[1]-acc)+THRES/2 < THRES))<<1);
+            }
             adc_res.ch[1] = acc;
             break;
         case ADC10CTL1_FLAGS_CH3:
             ADC10CTL1 = ADC10CTL1_FLAGS_CH1;
+            if (autonomous) {
+                P2OUT      &= ~(1<<4);
+                P2OUT      |= ((!!((adc_res.ch[2]-acc)+THRES/2 < THRES))<<1);
+                adc_res.ch[2] = acc;
+                break;
+            }
             adc_res.ch[2] = acc;
             return; /* End conversion sequence */
     }
@@ -42,19 +60,6 @@ void adc10_isr(void) {
     kick_adc();
     _BIS_SR_IRQ(LPM0_bits);
 }
-
-
-void timera1_isr(void) __attribute__((interrupt(TIMER1_A1_VECTOR)));
-void timera1_isr(void) {
-    TA1CTL   &= ~TAIFG;
-    TA1CCTL0 &= ~OUTMOD_7;
-    TA1CCTL0 |= OUTMOD_5;
-    TA1CCTL1 &= ~OUTMOD_7;
-    TA1CCTL1 |= OUTMOD_5;
-    TA1CCTL2 &= ~OUTMOD_7;
-    TA1CCTL2 |= OUTMOD_5;
-}
-
 
 int main(void){
     WDTCTL = WDTPW | WDTHOLD; /* disable WDT */
@@ -69,16 +74,7 @@ int main(void){
     /* PWM setup */
     P2DIR      |= (1<<0) | (1<<1) | (1<<4);
     P2OUT      &= ~((1<<0) | (1<<1) | (1<<4));
-    P2SEL      |= (1<<0) | (1<<1) | (1<<4);
-
-    TA1CTL      = TASSEL_2 | ID_0 | MC_0 | TACLR | TAIE;
-    TA1CCTL0    = OUTMOD_5 | OUT;
-    TA1CCTL1    = OUTMOD_5 | OUT;
-    TA1CCTL2    = OUTMOD_5 | OUT;
-    TA1CCR0     = 0xC000;
-    TA1CCR1     = 0xC000;
-    TA1CCR2     = 0xC000;
-    TA1CTL     |= MC_2;
+    P2OUT      |= (1<<0) | (1<<1);
 
     /* ADC setup */
     ADC10CTL1   = ADC10CTL1_FLAGS_CH2; /* flags set in #define directive at the head of this file */
@@ -95,16 +91,6 @@ int main(void){
 
     /* Set for 115.2kBd @ 16MHz */
     UCA0CTL1   |= UCSSEL1;
-    /*
-    UCA0BR0     = 1666&0xFF;
-    UCA0BR1     = 1666>>8;
-    UCA0MCTL    = 0x0C;
-    */
-    /*
-    UCA0BR0     = 8;
-    UCA0BR1     = 0;
-    UCA0MCTL    = UCBRF_11 | UCOS16;
-    */
     UCA0BR0     = 138;
     UCA0BR1     = 0;
     UCA0MCTL    = UCBRS_7;
@@ -116,15 +102,13 @@ int main(void){
     P2DIR      |= (1<<ST_GRN_PIN) | (1<<ST_YLW_PIN);
     P2OUT      &= ~((1<<ST_GRN_PIN) | (1<<ST_YLW_PIN));
     
-//    P2OUT      &= ~(1<<ST_YLW_PIN);
-//    P2OUT      |= (1<<ST_GRN_PIN);
-
     /* Set global interrupt enable flag */
     _BIS_SR(GIE);
 
+    kick_adc();
+
     while (42) {
-//        TA0CCR0 = TA0CCR1 = TA0CCR2 = (ch1<<6);
-//        _BIS_SR(LPM0_bits);
+        _BIS_SR(LPM0_bits);
     }
     return 0;
 }

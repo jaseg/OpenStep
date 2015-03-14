@@ -27,11 +27,15 @@ def cavg(gen, n):
         yield [sum(l)/n for l in zip(*l)]
 
 def sergen(s, dev):
+    t = time.time()
     while True:
         s.broadcast_acquire()
         try:
 #            yield [ e-500+50*i for i,e in enumerate(e for p in s.broadcast_collect_data() for e in p) ]
             yield [ e-500+30*i for i,e in enumerate(p for i in range(len(s.devices)) for p in s.collect_data(i)) ]
+            t1 = time.time()
+            print(t1-t)
+            t = t1
         except:
             pass
             
@@ -72,4 +76,5 @@ for _ in range(nch):
     ls.append(l)
 
 for chunk in chunked(sergen(s, 4), 1):
+    pass
     plotfoo(chunk)
