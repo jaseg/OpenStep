@@ -46,7 +46,7 @@ typedef struct {
 #undef PKT_MEM
 
 /* protocol handling declarations */
-void ucarx_handler(void) __attribute__((interrupt(USCIAB0RX_VECTOR)));
+void ucarx_handler(void) __attribute__((interrupt(USCIAB0RX_VECTOR), signal)); /* "signal" enables nested interrupts here */
 static int prepare_packet(int broadcast, char cmd);
 static int wait_elapsed(int broadcast, char cmd);
 static int handle_command(int broadcast, int cmd, pkt_t* pkt);
@@ -227,7 +227,7 @@ static int handle_command(int broadcast, int cmd, pkt_t* pkt) {
 
     case CMD_ACQUIRE:
         kick_adc();
-        /* ...and go to sleep. */
+        /* ...and go back to sleep. */
         return 1;
     }
     return 0;

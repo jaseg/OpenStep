@@ -11,9 +11,9 @@
 #define PIEZO_1_CH            0
 #define PIEZO_2_CH            4
 #define PIEZO_3_CH            6
-#define ADC10CTL1_FLAGS_CH1 ((PIEZO_1_CH<<12) | ADC10CTL1_FLAGS_COMMON)
-#define ADC10CTL1_FLAGS_CH2 ((PIEZO_2_CH<<12) | ADC10CTL1_FLAGS_COMMON)
-#define ADC10CTL1_FLAGS_CH3 ((PIEZO_3_CH<<12) | ADC10CTL1_FLAGS_COMMON)
+#define ADC10CTL1_FLAGS_CH0 ((PIEZO_1_CH<<12) | ADC10CTL1_FLAGS_COMMON)
+#define ADC10CTL1_FLAGS_CH1 ((PIEZO_2_CH<<12) | ADC10CTL1_FLAGS_COMMON)
+#define ADC10CTL1_FLAGS_CH2 ((PIEZO_3_CH<<12) | ADC10CTL1_FLAGS_COMMON)
 
 #define RGB_R_PIN             0
 #define RGB_G_PIN             1
@@ -28,7 +28,7 @@ typedef struct {
     uint16_t ch[3];
 } adc_res_t;
 
-extern volatile adc_res_t adc_res;
+extern adc_res_t adc_res;
 extern volatile unsigned int adc_raw[ADC_OVERSAMPLING];
 extern const uint8_t CONFIG_MAC[8] __attribute__((section(".infomem.bss")));
 extern volatile int autonomous;
