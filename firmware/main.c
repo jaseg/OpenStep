@@ -5,8 +5,8 @@
 #include "main.h"
 
 
-#define THRES       50
-#define LED_DELAY   5
+#define THRES       100
+#define LED_DELAY   50
 
 
 const uint8_t CONFIG_MAC[];
@@ -149,12 +149,12 @@ int main(void){
 
         if (autonomous) {
             unsigned int p2reg = P2OUT & ~(1<<0 | 1<<1);
-            if (led_ctr[0])
-                p2reg      |= !!--led_ctr[0] <<0;
-            if (led_ctr[1])
-                p2reg      |= !!--led_ctr[1] <<1;
-            if (led_ctr[2])
-                p2reg      |= !!--led_ctr[2] <<1; /* Only use r and b leds for nice, pink color */
+            if (led_ctr[0]) led_ctr[0]--;
+            if (led_ctr[1]) led_ctr[1]--;
+            if (led_ctr[2]) led_ctr[2]--;
+            p2reg      |= !led_ctr[0] <<0;
+            p2reg      |= !led_ctr[1] <<1;
+            p2reg      |= !led_ctr[2] <<1; /* Only use r and b leds for nice, pink color */
             P2OUT = p2reg;
 
             kick_adc(); /* Restart sequence */
